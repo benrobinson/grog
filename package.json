@@ -1,0 +1,19 @@
+{
+  "name": "grog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "parcel-bundler": "^1.7.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1"
+  }
+}

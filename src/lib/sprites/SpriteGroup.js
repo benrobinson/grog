@@ -1,9 +1,12 @@
+import {application} from '../core';
+
 export default class SpriteGroup {
   constructor() {
     this._layers = [];
     this.sprites = {};
     this.x = 0;
     this.y = 0;
+    application.drawingLayers.entities.addDrawable(this);
   }
 
   addSprite = (name, sprite) => {
@@ -12,6 +15,11 @@ export default class SpriteGroup {
     this.sprites[name] = sprite;
     return this;
   };
+
+  destroy() {
+    application.drawingLayers.entities.removeDrawable(this);
+    delete this;
+  }
 
   draw() {
     for (let layer = 0; layer < this._layers.length; layer++) {

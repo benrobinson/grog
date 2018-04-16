@@ -9,6 +9,10 @@ export default class DrawingLayer {
     return this;
   }
 
+  removeDrawable(drawable) {
+    this._drawables = this._drawables.filter(d => d !== drawable);
+  }
+
   draw() {
     this._drawables.forEach(drawable => {
       drawable.draw();

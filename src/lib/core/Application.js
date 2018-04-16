@@ -1,6 +1,5 @@
 import Ticker from './Ticker';
 import EventManager from './EventManager';
-import DrawingLayers from './DrawingLayers';
 import DrawingLayer from './DrawingLayer';
 
 export default class Application {
@@ -33,10 +32,22 @@ export default class Application {
   }
 
   _init() {
-    this.ticker.addListener(() => {
-      this.eventManager.propagateAll();
+    this.eventManager.on('drawing', dt => {
       this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.drawingLayerOrder.forEach(drawingLayer => this.drawingLayers[drawingLayer].draw());
+    });
+
+    this.ticker.addListener((dt) => {
+      this.eventManager
+        .publish('input', dt)
+        .publish('logic', dt)
+        .publish('drawing', dt);
+
+      this.eventManager
+        .propagate('input')
+        .propagate('logic')
+        .propagate('drawing')
+        .propagateAll();
     }, null);
   }
 

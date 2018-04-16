@@ -85,10 +85,17 @@ function setupApplication(imageAssetManager) {
   application.canvasContext.msImageSmoothingEnabled = false;
   application.canvasContext.imageSmoothingEnabled = false;
 
-  application.drawingLayers.entities.addDrawable(spriteGroup);
+  application.eventManager.on('keydown', () => {
+    spriteGroup.destroy();
+  });
+
+  window.addEventListener('keydown', () => {
+    console.log('keydown');
+    application.eventManager.publish('keydown');
+  });
 
   application.run();
 
-  window.spriteGroup = spriteGroup;
+  // window.spriteGroup = spriteGroup;
   window.application = application;
 }

@@ -18,10 +18,8 @@ export default class EventManager {
    *
    * @param {string} eventKey
    * @param {*} data
-   *
-   * @return void
    */
-  publish(eventKey, data) {
+  publish(eventKey, data = null) {
     if (eventKey in this.listeners) {
       if (eventKey in this.pool) {
         this.pool[eventKey].push(data);
@@ -29,6 +27,7 @@ export default class EventManager {
         this.pool[eventKey] = [data];
       }
     }
+    return this;
   }
 
   /**
@@ -36,8 +35,6 @@ export default class EventManager {
    *
    * @param {string} eventKey
    * @param {function} callback
-   *
-   * @return void
    */
   subscribe(eventKey, callback) {
     if (eventKey in this.listeners) {
@@ -45,6 +42,7 @@ export default class EventManager {
     } else {
       this.listeners[eventKey] = [callback];
     }
+    return this;
   }
 
   /**
@@ -55,14 +53,13 @@ export default class EventManager {
    */
   on(eventKey, callback) {
     this.subscribe(eventKey, callback);
+    return this;
   }
 
   /**
    * Call listener for all pooled events under the specified key.
    *
    * @param {string} eventKey
-   *
-   * @return void
    */
   propagate(eventKey) {
     if (eventKey in this.pool && eventKey in this.listeners) {
@@ -73,16 +70,16 @@ export default class EventManager {
       });
       delete this.pool[eventKey];
     }
+    return this;
   }
 
   /**
    * Propagate all pooled events.
-   *
-   * @return void
    */
   propagateAll() {
     for (let eventKey in this.pool) {
       this.propagate(eventKey);
     }
+    return this;
   }
 }

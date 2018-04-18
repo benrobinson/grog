@@ -1,4 +1,4 @@
-import {application} from '../core';
+import {application} from '../core/index';
 import {Degrees} from '../util/Math';
 
 export default class Sprite {

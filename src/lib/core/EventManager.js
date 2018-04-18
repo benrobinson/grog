@@ -1,18 +1,22 @@
 /**
  * Class EventManager
  *
- * A pub-sub implementation with a simple event pool.
+ * A pub-sub implementation with a simple event _pool.
  */
 export default class EventManager {
 
   /**
-   * Initialize empty listeners and event pool.
+   * Initialize empty _listeners and event _pool.
    */
   constructor() {
-    this.listeners = {};
-    this.pool = {};
+    this.empty();
   }
 
+  empty() {
+    this._listeners = {};
+    this._pool = {};
+  }
+  
   /**
    * Publish an event
    *
@@ -20,11 +24,11 @@ export default class EventManager {
    * @param {*} data
    */
   publish(eventKey, data = null) {
-    if (eventKey in this.listeners) {
-      if (eventKey in this.pool) {
-        this.pool[eventKey].push(data);
+    if (eventKey in this._listeners) {
+      if (eventKey in this._pool) {
+        this._pool[eventKey].push(data);
       } else {
-        this.pool[eventKey] = [data];
+        this._pool[eventKey] = [data];
       }
     }
     return this;
@@ -37,47 +41,36 @@ export default class EventManager {
    * @param {function} callback
    */
   subscribe(eventKey, callback) {
-    if (eventKey in this.listeners) {
-      this.listeners[eventKey].push(callback);
+    if (eventKey in this._listeners) {
+      this._listeners[eventKey].push(callback);
     } else {
-      this.listeners[eventKey] = [callback];
+      this._listeners[eventKey] = [callback];
     }
     return this;
   }
 
   /**
-   * Just an alias of subscribe.
-   *
-   * @param {string} eventKey
-   * @param {function} callback
-   */
-  on(eventKey, callback) {
-    this.subscribe(eventKey, callback);
-    return this;
-  }
-
-  /**
-   * Call listener for all pooled events under the specified key.
+   * Call listener for all _pooled events under the specified key.
    *
    * @param {string} eventKey
    */
   propagate(eventKey) {
-    if (eventKey in this.pool && eventKey in this.listeners) {
-      this.pool[eventKey].forEach(event => {
-        this.listeners[eventKey].forEach(callback => {
+    if (eventKey in this._pool && eventKey in this._listeners) {
+      this._pool[eventKey].forEach(event => {
+        this._listeners[eventKey].forEach(callback => {
           callback(event);
         });
       });
-      delete this.pool[eventKey];
+      delete this._pool[eventKey];
     }
     return this;
   }
 
   /**
-   * Propagate all pooled events.
+   * Propagate all _pooled events.
    */
   propagateAll() {
-    for (let eventKey in this.pool) {
+    for (let eventKey in this._pool) {
       this.propagate(eventKey);
     }
     return this;

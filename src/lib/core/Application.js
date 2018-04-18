@@ -1,26 +1,13 @@
 import Ticker from './Ticker';
 import EventManager from './EventManager';
-import DrawingLayer from './DrawingLayer';
+import DrawingLayers from './DrawingLayer';
 
 export default class Application {
   constructor() {
     this.canvas = window.document.getElementById('game');
     this.canvasContext = this.canvas.getContext('2d');
     this.eventManager = new EventManager();
-    this.drawingLayers = {
-      background: new DrawingLayer(),
-      entities: new DrawingLayer(),
-      foreground: new DrawingLayer(),
-      atmosphere: new DrawingLayer(),
-      interface: new DrawingLayer()
-    };
-    this.drawingLayerOrder = [
-      'background',
-      'entities',
-      'foreground',
-      'atmosphere',
-      'interface'
-    ];
+    this.drawingLayers = new DrawingLayers();
     this.ticker = new Ticker();
     this._time = new Date().getTime();
     this._states = {
@@ -31,22 +18,27 @@ export default class Application {
     this._init();
   }
 
+  _reset() {
+    this.eventManager.empty();
+    this.drawingLayers.empty();
+  }
+
   _init() {
-    this.eventManager.on('drawing', dt => {
+    this.eventManager.on('application:drawing', dt => {
       this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.drawingLayerOrder.forEach(drawingLayer => this.drawingLayers[drawingLayer].draw());
     });
 
     this.ticker.addListener((dt) => {
       this.eventManager
-        .publish('input', dt)
-        .publish('logic', dt)
-        .publish('drawing', dt);
+        .publish('application:updates', dt)
+        .publish('application:animation', dt)
+        .publish('application:drawing', dt);
 
       this.eventManager
-        .propagate('input')
-        .propagate('logic')
-        .propagate('drawing')
+        .propagate('application:updates')
+        .propagate('application:animation')
+        .propagate('application:drawing')
         .propagateAll();
     }, null);
   }
@@ -63,6 +55,12 @@ export default class Application {
       this._time = time;
       window.requestAnimationFrame(this._update.bind(this))
     }, 1000 / 60);
+  }
+
+  changeStage(stageFn) {
+    this._reset();
+    this._init();
+    stageFn();
   }
 
   run() {

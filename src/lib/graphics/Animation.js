@@ -1,4 +1,4 @@
-import {application} from '../core';
+import {application} from '../core/index';
 import {Degrees} from '../util/Math';
 
 export default class Animation {
@@ -28,7 +28,8 @@ export default class Animation {
   }
 
   _init() {
-    application.ticker.addListener(this._update, this);
+    application.eventManager
+      .subscribe('application:animation', this._update.bind(this));
   }
 
   _update(dt) {

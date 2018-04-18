@@ -1,12 +1,13 @@
 import {application} from './lib/core';
-import Sprite from './lib/sprites/Sprite';
-import SpriteGroup from './lib/sprites/SpriteGroup';
-import Animation from './lib/sprites/Animation';
-import ImageAsset from './lib/resources/ImageAsset';
-import ImageAssetLoader from './lib/resources/ImageAssetLoader';
-import TileSheet from './lib/resources/TileSheet';
+import Sprite from './lib/graphics/Sprite';
+import SpriteGroup from './lib/graphics/SpriteGroup';
+import Animation from './lib/graphics/Animation';
+import ImageAsset from './lib/graphics/ImageAsset';
+import ImageAssetLoader from './lib/graphics/ImageAssetLoader';
+import TileSheet from './lib/graphics/TileSheetAsset';
 
 import characterSheetImage from './assets/character.png';
+import DrawingLayer from './lib/core/DrawingLayer';
 
 window.addEventListener('load', function() {
   new ImageAssetLoader()
@@ -32,6 +33,19 @@ function setupApplication(imageAssetManager) {
   application.canvas.width = config.canvas.width;
   application.canvas.style.width = '100%';
 
+  application.canvas.style.imageRendering = 'pixelated';
+  application.canvasContext.mozImageSmoothingEnabled = false;
+  application.canvasContext.webkitImageSmoothingEnabled = false;
+  application.canvasContext.msImageSmoothingEnabled = false;
+  application.canvasContext.imageSmoothingEnabled = false;
+
+  application.run();
+
+  // window.spriteGroup = spriteGroup;
+  window.application = application;
+}
+
+function exampleStage() {
   const characterAsset = imageAssetManager.getAsset('character');
   const characterTileSheet = TileSheet(characterAsset, 8, 8);
 
@@ -79,23 +93,14 @@ function setupApplication(imageAssetManager) {
     .addSprite('head', head)
     .setPosition(50, 50);
 
-  application.canvas.style.imageRendering = 'pixelated';
-  application.canvasContext.mozImageSmoothingEnabled = false;
-  application.canvasContext.webkitImageSmoothingEnabled = false;
-  application.canvasContext.msImageSmoothingEnabled = false;
-  application.canvasContext.imageSmoothingEnabled = false;
+  application.drawingLayers.addLayer('entities', new DrawingLayer());
 
   application.eventManager.on('keydown', () => {
-    spriteGroup.destroy();
+    application.drawingLayers.getLayer('entities').removeDrawable(spriteGroup);
   });
 
   window.addEventListener('keydown', () => {
     console.log('keydown');
     application.eventManager.publish('keydown');
   });
-
-  application.run();
-
-  // window.spriteGroup = spriteGroup;
-  window.application = application;
 }

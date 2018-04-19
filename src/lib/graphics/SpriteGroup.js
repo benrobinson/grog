@@ -15,9 +15,9 @@ export default class SpriteGroup {
     return this;
   };
 
-  draw() {
+  draw(canvasContext) {
     for (let layer = 0; layer < this._layers.length; layer++) {
-      this.sprites[this._layers[layer]].draw();
+      this.sprites[this._layers[layer]].draw(canvasContext);
     }
   }
 

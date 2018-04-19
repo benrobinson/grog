@@ -4,10 +4,15 @@ import DrawingLayers from './DrawingLayer';
 
 export default class Application {
   constructor() {
-    this.canvas = window.document.getElementById('game');
-    this.canvasContext = this.canvas.getContext('2d');
+    this.levelCanvas = window.document.createElement('canvas');
+    this.levelCanvasContext = this.canvas.getContext('2d');
+    this.levelLayers = new DrawingLayers();
+
+    this.cameraCanvas = window.document.getElementById('window');
+    this.cameraCanvasContext = this.canvas.getContext('2d');
+    this.cameraLayers = new DrawingLayers();
+
     this.eventManager = new EventManager();
-    this.drawingLayers = new DrawingLayers();
     this.ticker = new Ticker();
     this._time = new Date().getTime();
     this._states = {
@@ -25,8 +30,10 @@ export default class Application {
 
   _init() {
     this.eventManager.on('application:drawing', dt => {
-      this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.drawingLayerOrder.forEach(drawingLayer => this.drawingLayers[drawingLayer].draw());
+      this.levelCanvasContext.clearRect(0, 0, this.levelCanvas.width, this.levelCanvas.height);
+      this.cameraCanvasContext.clearRect(0, 0, this.cameraCanvas.width, this.cameraCanvas.height);
+      this.levelLayers.forEach(ll => this.levelLayers[ll].draw(this.levelCanvasContext));
+      this.cameraLayers.forEach(ll => this.cameraLayers[ll].draw(this.cameraCanvasContext));
     });
 
     this.ticker.addListener((dt) => {
@@ -74,4 +81,9 @@ export default class Application {
   stop() {
     this._state = this._states.STOPPED;
   }
+
+  useDefaultLayers() {
+
+  }
+
 }

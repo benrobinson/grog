@@ -16,18 +16,18 @@ export default class Sprite {
     this._scale = 1;
     this.x = 0;
     this.y = 0;
-    this.draw = () => {}
+    this.draw = (canvasContext) => {}
   }
 
   _draw() {
     this._animations[this._animation].onFrame(frame => {
-      this.draw = () => {
+      this.draw = (canvasContext) => {
         const dWidth = frame.tile[2] * this._scale;
         const dHeight = frame.tile[3] * this._scale;
-        application.canvasContext.save();
-        application.canvasContext.translate(this.x + this._group.x + frame.move.x, this.y + this._group.y + frame.move.y);
-        application.canvasContext.rotate(this._rotation.radians + frame.rotation);
-        application.canvasContext.drawImage(
+        canvasContext.save();
+        canvasContext.translate(this.x + this._group.x + frame.move.x, this.y + this._group.y + frame.move.y);
+        canvasContext.rotate(this._rotation.radians + frame.rotation);
+        canvasContext.drawImage(
           this._animations[this._animation].tileSheet.imageAsset.resource,
           frame.tile[0],
           frame.tile[1],
@@ -37,7 +37,7 @@ export default class Sprite {
           -(dHeight / 2),
           dWidth,
           dHeight);
-        application.canvasContext.restore();
+        canvasContext.restore();
       };
     });
     return this;

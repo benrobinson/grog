@@ -13,9 +13,9 @@ export default class DrawingLayer {
     this._drawables = this._drawables.filter(d => d !== drawable);
   }
 
-  draw() {
+  draw(canvasContext) {
     this._drawables.forEach(drawable => {
-      drawable.draw();
+      drawable.draw(canvasContext);
     });
   }
 

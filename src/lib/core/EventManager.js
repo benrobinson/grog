@@ -40,7 +40,9 @@ export default class EventManager {
    * @param {string} eventKey
    * @param {function} callback
    */
-  subscribe(eventKey, callback) {
+  subscribe(eventKey, callback, count = 0) {
+    // TODO make events only work until count is used up.
+    
     if (eventKey in this._listeners) {
       this._listeners[eventKey].push(callback);
     } else {

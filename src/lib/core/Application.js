@@ -18,7 +18,7 @@ export default class Application {
     this.camera = {
       canvas: window.document.getElementById('camera'),
       canvasContext: this.camera.canvas.getContext('2d'),
-      layers: new DrawingLayers()
+      drawingLayers: new DrawingLayers()
     };
 
     this.eventManager = new EventManager();

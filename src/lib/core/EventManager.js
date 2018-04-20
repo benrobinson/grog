@@ -3,7 +3,7 @@
  *
  * A pub-sub implementation with a simple event _pool.
  */
-export default class EventManager {
+class EventManager {
 
   /**
    * Initialize empty _listeners and event _pool.
@@ -16,7 +16,7 @@ export default class EventManager {
     this._listeners = {};
     this._pool = {};
   }
-  
+
   /**
    * Publish an event
    *
@@ -41,12 +41,10 @@ export default class EventManager {
    * @param {function} callback
    */
   subscribe(eventKey, callback, count = 0) {
-    // TODO make events only work until count is used up.
-    
     if (eventKey in this._listeners) {
-      this._listeners[eventKey].push(callback);
+      this._listeners[eventKey].push({ callback, count, counter: 0 });
     } else {
-      this._listeners[eventKey] = [callback];
+      this._listeners[eventKey] = [{ callback, count, counter: 0 }];
     }
     return this;
   }
@@ -59,8 +57,11 @@ export default class EventManager {
   propagate(eventKey) {
     if (eventKey in this._pool && eventKey in this._listeners) {
       this._pool[eventKey].forEach(event => {
-        this._listeners[eventKey].forEach(callback => {
-          callback(event);
+        this._listeners[eventKey].forEach(listener => {
+          if (listener.count <= 0 || listener.count > listener.counter) {
+            listener.callback(event);
+            listener.counter++;
+          }
         });
       });
       delete this._pool[eventKey];

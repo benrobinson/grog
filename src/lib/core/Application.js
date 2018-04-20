@@ -1,16 +1,25 @@
 import Ticker from './Ticker';
 import EventManager from './EventManager';
 import DrawingLayers from './DrawingLayer';
+import LevelMap from './LevelMap';
+import LevelTriggers from './LevelTriggers';
 
 export default class Application {
-  constructor() {
-    this.levelCanvas = window.document.createElement('canvas');
-    this.levelCanvasContext = this.canvas.getContext('2d');
-    this.levelLayers = new DrawingLayers();
 
-    this.cameraCanvas = window.document.getElementById('window');
-    this.cameraCanvasContext = this.canvas.getContext('2d');
-    this.cameraLayers = new DrawingLayers();
+  constructor() {
+    this.level = {
+      canvas: window.document.createElement('canvas'),
+      canvasContext: this.level.canvas.getContext('2d'),
+      drawingLayers: new DrawingLayers(),
+      mapLayer: new LevelMap(),
+      triggers: new LevelTriggers()
+    };
+
+    this.camera = {
+      canvas: window.document.getElementById('camera'),
+      canvasContext: this.camera.canvas.getContext('2d'),
+      layers: new DrawingLayers()
+    };
 
     this.eventManager = new EventManager();
     this.ticker = new Ticker();
@@ -25,15 +34,19 @@ export default class Application {
 
   _reset() {
     this.eventManager.empty();
-    this.drawingLayers.empty();
+    this.level.drawingLayers.empty();
+    this.level.mapLayer.empty();
+    this.camera.drawingLayers.empty();
   }
 
   _init() {
     this.eventManager.on('application:drawing', dt => {
-      this.levelCanvasContext.clearRect(0, 0, this.levelCanvas.width, this.levelCanvas.height);
-      this.cameraCanvasContext.clearRect(0, 0, this.cameraCanvas.width, this.cameraCanvas.height);
-      this.levelLayers.forEach(ll => this.levelLayers[ll].draw(this.levelCanvasContext));
-      this.cameraLayers.forEach(ll => this.cameraLayers[ll].draw(this.cameraCanvasContext));
+      this.level.canvasContext.clearRect(0, 0, this.level.canvas.width, this.level.canvas.height);
+      this.level.drawingLayers.forEach(ll => this.level.drawingLayers[ll].draw(this.level.canvasContext));
+
+      this.camera.canvasContext.clearRect(0, 0, this.camera.canvas.width, this.camera.canvas.height);
+      this.camera.canvasContext.drawImage(this.level.canvas, this.camera.offset.x, this.camera.offset.y);
+      this.camera.drawingLayers.forEach(ll => this.camera.drawingLayers[ll].draw(this.camera.canvasContext));
     });
 
     this.ticker.addListener((dt) => {
@@ -83,7 +96,15 @@ export default class Application {
   }
 
   useDefaultLayers() {
+    this.level.drawingLayers
+      .addLayer('floor')
+      .addLayer('entities')
+      .addLayer('overlay');
 
+    this.camera.drawingLayers
+      .addLayer('atmosphere')
+      .addLayer('interface')
+      .addLayer('effects');
   }
 
 }

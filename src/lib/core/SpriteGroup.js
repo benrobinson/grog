@@ -1,4 +1,4 @@
-import {application} from '../core/index';
+import {application} from './index';
 
 export default class SpriteGroup {
   constructor() {

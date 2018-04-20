@@ -1,4 +1,5 @@
 export default class Ticker {
+
   constructor() {
     this._listeners = [];
   }
@@ -11,4 +12,5 @@ export default class Ticker {
   tick(dt) {
     this._listeners.map((listener) => listener.fn.apply(listener.context, [dt]));
   }
+
 }

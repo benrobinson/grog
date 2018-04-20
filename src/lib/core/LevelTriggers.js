@@ -1,4 +1,4 @@
-export default class LevelCollisions {
+export default class LevelTriggers {
 
   constructor() {
     this.empty();

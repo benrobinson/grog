@@ -1,10 +1,10 @@
 import {application} from './lib/core';
-import Sprite from './lib/graphics/Sprite';
-import SpriteGroup from './lib/graphics/SpriteGroup';
-import Animation from './lib/graphics/Animation';
-import ImageAsset from './lib/graphics/ImageAsset';
-import ImageAssetLoader from './lib/graphics/ImageAssetLoader';
-import TileSheet from './lib/graphics/TileSheetAsset';
+import Sprite from './lib/core/Sprite';
+import SpriteGroup from './lib/core/SpriteGroup';
+import Animation from './lib/core/Animation';
+import ImageAsset from './lib/core/ImageAsset';
+import ImageAssetLoader from './lib/core/ImageAssetLoader';
+import TileSheet from './lib/core/TileSheetAsset';
 
 import characterSheetImage from './assets/character.png';
 import DrawingLayer from './lib/core/DrawingLayer';

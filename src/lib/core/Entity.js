@@ -6,36 +6,49 @@ export default class Entity {
     this.empty();
   }
 
-  _applyFriction(x, y) {
+  _applyFriction(dt, x, y) {
     const current = application.mapLayer.getTypeFromPixels(x, y);
 
     let friction;
 
-    // TODO move this elsewhere
+    // TODO probably move this elsewhere
     switch(current) {
       default:
-      case 'FLOOR':
+      case LevelMap.tileTypes.FLOOR:
         friction = 1;
         break;
-      case 'LIQUID':
+      case LevelMap.tileTypes.LIQUID:
         friction = 2;
         break;
-      case 'SLIP':
+      case LevelMap.tileTypes.SLIP:
         friction = 0.3;
         break;
-      case 'ROUGH':
+      case LevelMap.tileTypes.ROUGH:
         friction = 1.3;
         break;
     }
 
-    this.vx = this.vx - friction > 0 ? this.vx - friction : 0;
-    this.vy = this.vy - friction > 0 ? this.vy - friction : 0;
+    const nextVx = Math.abs(this.vx) - friction;
+    const nextVy = Math.abs(this.vy) - friction;
+
+    if (nextVx <= 0) {
+      this.vx = 0;
+    } else {
+      this.vx = this.vx > 0 ? nextVx : -nextVx;
+    }
+
+    if (nextVy <= 0) {
+      this.vy = 0;
+    } else {
+      this.vy = this.vy > 0 ? nextVy : -nextVy;
+    }
+
     return this;
   }
 
   _init() {
-    application.eventManager.subscribe('application:updates', () => {
-      this._applyFriction(this.x, this.y);
+    application.eventManager.subscribe('application:updates', (dt) => {
+      this._applyFriction(dt, this.x + (this.collisionBox.width / 2), this.y + (this.collisionBox.height / 2));
       const nextX = this.x + (dt * this.vx);
       const nextY = this.y + (dt * this.vy);
       this.maybeMoveTo(nextX, nextY);
@@ -48,10 +61,12 @@ export default class Entity {
     this.vx = 0;
     this.vy = 0;
     this.collisionBox = {
-      width: 0,
-      height: 0,
-      offsetX: 0,
-      offsetY: 0
+      width: 8,
+      height: 8,
+      offset: {
+        x: 0,
+        y: 0
+      }
     };
     this._isBounce = false;
     return this;
@@ -66,17 +81,34 @@ export default class Entity {
     return this;
   }
 
+  getBox(x, y) {
+    return {
+      left: x + this.collisionBox.offset.x,
+      right: x + this.collisionBox.offset.x + this.collisionBox.width,
+      top: y + this.collisionBox.offset.y,
+      bottom: y + this.collisionBox.offset.y + this.collisionBox.height
+    }
+  }
+
   maybeMoveTo(x, y) {
     const mapLayer = application.level.mapLayer;
+    const nextBox = this.getBox(x, y);
+    const currBox = this.getBox(this.x, this.y);
 
-    if (mapLayer.getTypeFromPixels(x, this.y) === 'WALL') {
-      this._isBounce ? this.bounce('x') : this.stop('x');
+    if (this.vx > 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.top) === LevelMap.tileTypes.WALL ||
+        this.vx > 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelMap.tileTypes.WALL ||
+        this.vx < 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.top) === LevelMap.tileTypes.WALL ||
+        this.vx < 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.bottom) === LevelMap.tileTypes.WALL) {
+      this.vx = this._isBounce ? this.bounce('x') : this.stop('x');
     } else {
       this.x = x;
     }
 
-    if (mapLayer.getTypeFromPixels(this.x, y) === 'WALL') {
-      this._isBounce ? this.bounce('y') : this.stop('y');
+    if (this.vy > 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.bottom) === LevelMap.tileTypes.WALL ||
+        this.vy > 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelMap.tileTypes.WALL ||
+        this.vy < 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.top) === LevelMap.tileTypes.WALL ||
+        this.vy < 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.top) === LevelMap.tileTypes.WALL) {
+      this.vy = this._isBounce ? this.bounce('y') : this.stop('y');
     } else {
       this.y = y;
     }

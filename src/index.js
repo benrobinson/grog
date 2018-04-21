@@ -1,14 +1,9 @@
 import {application} from './lib/core';
-import Sprite from './lib/core/Sprite';
-import SpriteGroup from './lib/core/SpriteGroup';
-import Animation from './lib/core/Animation';
 import ImageAsset from './lib/core/ImageAsset';
 import ImageAssetLoader from './lib/core/ImageAssetLoader';
-import TileSheet from './lib/core/TileSheetAsset';
 
 import characterSheetImage from './assets/character.png';
 import tileSheetImage from './assets/tileset.png';
-import DrawingLayer from './lib/core/DrawingLayer';
 import LevelDrawing from './lib/core/LevelDrawing';
 
 window.addEventListener('load', function() {

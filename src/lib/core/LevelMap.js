@@ -1,5 +1,13 @@
 class LevelMap {
 
+  static tileTypes = {
+    FLOOR: 'FLOOR',
+    LIQUID: 'LIQUID',
+    ROUGH: 'ROUGH',
+    SLIP: 'SLIP',
+    WALL: 'WALL'
+  };
+
   constructor() {
     this.empty();
   }
@@ -25,11 +33,12 @@ class LevelMap {
   }
 
   getType(x, y) {
-    if (this._mapLayer[y]) {
-      return this._mapLayer[y][x] || 'WALL';
-    } else {
-      return 'WALL';
+    if (typeof this._mapLayer[y] !== 'undefined') {
+      if(typeof this._mapLayer[y][x] !== 'undefined') {
+        return this._mapLayer[y][x];
+      }
     }
+    return LevelMap.tileTypes.WALL;
   }
 
   getTypeFromPixels(x, y) {

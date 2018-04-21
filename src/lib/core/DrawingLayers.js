@@ -1,12 +1,14 @@
+import DrawingLayer from './DrawingLayer';
+
 export default class DrawingLayers {
 
   constructor() {
     this.empty();
   }
 
-  addLayer(name, layer) {
+  addLayer(name) {
     this._layerOrder.push(name);
-    this._layers[name] = layer;
+    this._layers[name] = new DrawingLayer();
     return this;
   }
 

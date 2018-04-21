@@ -9,12 +9,12 @@ export default class LevelDrawing {
     this.tiles = null;
   }
 
-  useTileSheet(tileSheet) {
+  setTileSheet(tileSheet) {
     this.tileSheet = tileSheet;
     return this;
   }
 
-  useTiles(tiles) {
+  setTiles(tiles) {
     this.tiles = tiles;
     return this;
   }

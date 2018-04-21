@@ -9,17 +9,17 @@ export default class Application {
   constructor() {
     this.level = {
       canvas: window.document.createElement('canvas'),
-      canvasContext: this.level.canvas.getContext('2d'),
       drawingLayers: new DrawingLayers(),
       mapLayer: new LevelMap(),
       triggers: new LevelTriggers()
     };
+    this.level.canvasContext = this.level.canvas.getContext('2d');
 
     this.camera = {
       canvas: window.document.getElementById('camera'),
-      canvasContext: this.camera.canvas.getContext('2d'),
       drawingLayers: new DrawingLayers()
     };
+    this.camera.canvasContext = this.camera.canvas.getContext('2d');
 
     this.eventManager = new EventManager();
     this.ticker = new Ticker();

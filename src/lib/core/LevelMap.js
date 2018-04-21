@@ -12,7 +12,7 @@ class LevelMap {
     };
   }
 
-  setMapLayer(mapLayer) {
+  setTiles(mapLayer) {
     this._mapLayer = mapLayer;
     return this;
   }

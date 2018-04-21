@@ -1,8 +1,9 @@
 import Ticker from './Ticker';
 import EventManager from './EventManager';
-import DrawingLayers from './DrawingLayer';
+import DrawingLayers from './DrawingLayers';
 import LevelMap from './LevelMap';
 import LevelTriggers from './LevelTriggers';
+import Camera from './Camera';
 
 export default class Application {
 
@@ -17,7 +18,8 @@ export default class Application {
 
     this.camera = {
       canvas: window.document.getElementById('camera'),
-      drawingLayers: new DrawingLayers()
+      drawingLayers: new DrawingLayers(),
+      camera: new Camera()
     };
     this.camera.canvasContext = this.camera.canvas.getContext('2d');
 
@@ -33,6 +35,7 @@ export default class Application {
   }
 
   _reset() {
+    console.log(this);
     this.eventManager.empty();
     this.level.drawingLayers.empty();
     this.level.mapLayer.empty();
@@ -40,13 +43,13 @@ export default class Application {
   }
 
   _init() {
-    this.eventManager.on('application:drawing', dt => {
+    this.eventManager.subscribe('application:drawing', () => {
       this.level.canvasContext.clearRect(0, 0, this.level.canvas.width, this.level.canvas.height);
-      this.level.drawingLayers.forEach(ll => this.level.drawingLayers[ll].draw(this.level.canvasContext));
+      this.level.drawingLayers.forEach(ll => ll.draw(this.level.canvasContext));
 
       this.camera.canvasContext.clearRect(0, 0, this.camera.canvas.width, this.camera.canvas.height);
-      this.camera.canvasContext.drawImage(this.level.canvas, this.camera.offset.x, this.camera.offset.y);
-      this.camera.drawingLayers.forEach(ll => this.camera.drawingLayers[ll].draw(this.camera.canvasContext));
+      this.camera.canvasContext.drawImage(this.level.canvas, -this.camera.camera.offset.x, -this.camera.camera.offset.y);
+      this.camera.drawingLayers.forEach(ll => ll.draw(this.camera.canvasContext));
     });
 
     this.ticker.addListener((dt) => {

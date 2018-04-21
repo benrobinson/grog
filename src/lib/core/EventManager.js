@@ -3,7 +3,7 @@
  *
  * A pub-sub implementation with a simple event _pool.
  */
-class EventManager {
+export default class EventManager {
 
   /**
    * Initialize empty _listeners and event _pool.

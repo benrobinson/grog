@@ -1,3 +1,5 @@
+import {application} from './index';
+
 export default class LevelDrawing {
 
   constructor() {
@@ -39,8 +41,11 @@ export default class LevelDrawing {
 
         t = this.tileSheet.getTile(tile[0], tile[1]);
 
-        console.log(t);
-
+        cachedCanvas.style.imageRendering = 'pixelated';
+        cachedCanvasContext.mozImageSmoothingEnabled = false;
+        cachedCanvasContext.webkitImageSmoothingEnabled = false;
+        cachedCanvasContext.msImageSmoothingEnabled = false;
+        cachedCanvasContext.imageSmoothingEnabled = false;
         cachedCanvasContext.drawImage(
           this.tileSheet.imageAsset.resource,
           t[0],

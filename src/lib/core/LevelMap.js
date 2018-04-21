@@ -1,4 +1,4 @@
-class LevelMap {
+export default class LevelMap {
 
   static tileTypes = {
     FLOOR: 'FLOOR',

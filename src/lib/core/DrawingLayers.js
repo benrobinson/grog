@@ -12,6 +12,10 @@ export default class DrawingLayers {
     return this;
   }
 
+  forEach(fn) {
+    this._layerOrder.forEach(name => fn(this._layers[name]));
+  }
+
   getLayer(name) {
     return this._layers[name];
   }

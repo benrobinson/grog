@@ -1,18 +1,10 @@
-class Camera {
+export default class Camera {
 
   constructor() {
     this.empty()
   }
 
   empty() {
-    this._focalPoint = {
-      x: 0,
-      y: 0
-    };
-    this._offset = {
-      x: 0,
-      y: 0
-    };
     this._levelSize = {
       w: 640,
       h: 480
@@ -21,33 +13,44 @@ class Camera {
       w: 320,
       h: 240
     };
+    this.focalPoint = {
+      x: 0,
+      y: 0
+    };
+    this.offset = {
+      x: 0,
+      y: 0
+    };
   }
 
   _focusAxis(axis, v) {
     if (this._levelSize.w <= this._viewPort.w) {
-      this._offset[axis] = 0;
-      return;
+      this.offset[axis] = 0;
     } else {
       const edgeBuffer = this._viewPort.w / 2;
 
       // Camera can't go beyond the left edge.
       if (v <= edgeBuffer) {
-        this._offset[axis] = 0;
+        this.offset[axis] = 0;
         return;
       }
 
       // Camera can't go beyond the right edge.
       if (v >= this._levelSize.w || (this._levelSize.w - v) <= edgeBuffer) {
-        this._offset[axis] = this._levelSize.w - this._viewPort.w;
+        this.offset[axis] = this._levelSize.w - this._viewPort.w;
         return;
       }
 
-      this._offset[axis] = v - edgeBuffer;
+      this.offset[axis] = v - edgeBuffer;
     }
   }
 
   refocus() {
-    this.focus(this._focalPoint.x, this._focalPoint.y);
+    this.focus(this.focalPoint.x, this.focalPoint.y);
+  }
+
+  setFocalPoint(x, y) {
+    this.focalPoint = { x, y };
   }
 
   focus(x, y) {
@@ -55,20 +58,14 @@ class Camera {
     this._focusAxis('y', y);
   }
 
-  setFocalPoint(x, y) {
-    this._focalPoint = { x, y };
-  }
-
   setLevelSize(w, h) {
     this._levelSize = { w, h };
-  }
-
-  setOffset(x, y) {
-    this._offset = { x, y };
+    return this;
   }
 
   setViewPort(w, h) {
     this._viewPort = { w, h };
+    return this;
   }
 
 }

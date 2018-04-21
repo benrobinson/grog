@@ -1,13 +1,15 @@
 import {application} from './index';
+import LevelMap from './LevelMap';
 
 export default class Entity {
 
   constructor() {
     this.empty();
+    this._init();
   }
 
   _applyFriction(dt, x, y) {
-    const current = application.mapLayer.getTypeFromPixels(x, y);
+    const current = application.level.mapLayer.getTypeFromPixels(x, y);
 
     let friction;
 
@@ -15,21 +17,21 @@ export default class Entity {
     switch(current) {
       default:
       case LevelMap.tileTypes.FLOOR:
-        friction = 1;
+        friction = 5;
         break;
       case LevelMap.tileTypes.LIQUID:
-        friction = 2;
+        friction = 6;
         break;
       case LevelMap.tileTypes.SLIP:
-        friction = 0.3;
+        friction = 1;
         break;
       case LevelMap.tileTypes.ROUGH:
-        friction = 1.3;
+        friction = 7;
         break;
     }
 
-    const nextVx = Math.abs(this.vx) - friction;
-    const nextVy = Math.abs(this.vy) - friction;
+    const nextVx = Math.abs(this.vx) - friction * dt;
+    const nextVy = Math.abs(this.vy) - friction * dt;
 
     if (nextVx <= 0) {
       this.vx = 0;
@@ -60,15 +62,17 @@ export default class Entity {
     this.y = 0;
     this.vx = 0;
     this.vy = 0;
+    this.speed = 30;
+    this.acc = 10;
     this.collisionBox = {
       width: 8,
       height: 8,
       offset: {
-        x: 0,
-        y: 0
+        x: -4,
+        y: -4
       }
     };
-    this._isBounce = false;
+    this._isBounce = true;
     return this;
   }
 
@@ -90,6 +94,22 @@ export default class Entity {
     }
   }
 
+  accX(dt) {
+    this.vx = this.vx >= this.speed ? this.vx : this.vx + this.acc * dt;
+  }
+
+  accY(dt) {
+    this.vy = this.vy >= this.speed ? this.vy : this.vy + this.acc * dt;
+  }
+
+  decX(dt) {
+    this.vx = this.vx <= -this.speed ? this.vx : this.vx - this.acc * dt;
+  }
+
+  decY(dt) {
+    this.vy = this.vy <= -this.speed ? this.vy : this.vy - this.acc * dt;
+  }
+
   maybeMoveTo(x, y) {
     const mapLayer = application.level.mapLayer;
     const nextBox = this.getBox(x, y);
@@ -99,7 +119,7 @@ export default class Entity {
         this.vx > 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelMap.tileTypes.WALL ||
         this.vx < 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.top) === LevelMap.tileTypes.WALL ||
         this.vx < 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.bottom) === LevelMap.tileTypes.WALL) {
-      this.vx = this._isBounce ? this.bounce('x') : this.stop('x');
+      this._isBounce ? this.bounce('x') : this.stop('x');
     } else {
       this.x = x;
     }
@@ -108,22 +128,18 @@ export default class Entity {
         this.vy > 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelMap.tileTypes.WALL ||
         this.vy < 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.top) === LevelMap.tileTypes.WALL ||
         this.vy < 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.top) === LevelMap.tileTypes.WALL) {
-      this.vy = this._isBounce ? this.bounce('y') : this.stop('y');
+      this._isBounce ? this.bounce('y') : this.stop('y');
     } else {
       this.y = y;
     }
-
-    return this;
   }
 
   stop(axis) {
     this[`v${axis}`] = 0;
-    return this;
   }
 
   stopBoth() {
     this.stop('x');
     this.stop('y');
-    return this;
   }
 }

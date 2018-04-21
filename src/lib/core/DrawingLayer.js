@@ -6,7 +6,6 @@ export default class DrawingLayer {
 
   addDrawable(drawable) {
     this._drawables.push(drawable);
-    return this;
   }
 
   removeDrawable(drawable) {

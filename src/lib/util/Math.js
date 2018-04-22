@@ -1,6 +1,6 @@
 export class Radians {
   static toDegrees(radians) {
-    return deg * (180 / Math.PI)
+    return radians * (180 / Math.PI)
   }
 }
 

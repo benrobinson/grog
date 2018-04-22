@@ -99,7 +99,6 @@ export default class Animation {
   play(frame = 0) {
     if (this._state === this._states.PLAYING) return this;
 
-
     this._callbacks.onStart(this.display(frame));
     this.show(frame);
     this._state = this._states.PLAYING;

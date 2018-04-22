@@ -4,6 +4,7 @@ import DrawingLayers from './DrawingLayers';
 import LevelMap from './LevelMap';
 import LevelTriggers from './LevelTriggers';
 import Camera from './Camera';
+import EntityManager from './EntityManager';
 
 export default class Application {
 
@@ -23,6 +24,8 @@ export default class Application {
     };
     this.camera.canvasContext = this.camera.canvas.getContext('2d');
 
+    this.entities = new EntityManager();
+
     this.eventManager = new EventManager();
     this.ticker = new Ticker();
     this._time = new Date().getTime();
@@ -35,11 +38,11 @@ export default class Application {
   }
 
   _reset() {
-    console.log(this);
     this.eventManager.empty();
     this.level.drawingLayers.empty();
     this.level.mapLayer.empty();
     this.camera.drawingLayers.empty();
+    this.entities.empty();
   }
 
   _init() {
@@ -50,6 +53,10 @@ export default class Application {
       this.camera.canvasContext.clearRect(0, 0, this.camera.canvas.width, this.camera.canvas.height);
       this.camera.canvasContext.drawImage(this.level.canvas, -this.camera.camera.offset.x, -this.camera.camera.offset.y);
       this.camera.drawingLayers.forEach(ll => ll.draw(this.camera.canvasContext));
+    });
+
+    this.eventManager.subscribe('application:updates', (dt) => {
+      this.entities.checkCollisions(dt);
     });
 
     this.ticker.addListener((dt) => {

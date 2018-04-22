@@ -17,16 +17,16 @@ export default class Entity {
     switch(current) {
       default:
       case LevelMap.tileTypes.FLOOR:
-        friction = 5;
+        friction = 15;
         break;
       case LevelMap.tileTypes.LIQUID:
-        friction = 6;
+        friction = 20;
         break;
       case LevelMap.tileTypes.SLIP:
-        friction = 1;
+        friction = 5;
         break;
       case LevelMap.tileTypes.ROUGH:
-        friction = 7;
+        friction = 18;
         break;
     }
 
@@ -63,12 +63,12 @@ export default class Entity {
     this.vx = 0;
     this.vy = 0;
     this.speed = 30;
-    this.acc = 10;
+    this.acc = 30;
     this.collisionBox = {
-      width: 8,
-      height: 8,
+      width: 4,
+      height: 4,
       offset: {
-        x: -4,
+        x: -2,
         y: -4
       }
     };

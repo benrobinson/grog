@@ -21,12 +21,15 @@ export default class LevelDrawing {
     return this;
   }
 
-  makeDrawable(width, height) {
+  makeDrawable() {
 
     if (!this.tileSheet || !this.tiles) return (canvasContext) => {};
 
     const cachedCanvas = window.document.createElement('canvas');
     const cachedCanvasContext = cachedCanvas.getContext('2d');
+
+    const width = this.tiles[0].length * this.tileSheet.tileWidth;
+    const height = this.tiles.length * this.tileSheet.tileHeight;
 
     cachedCanvas.width = width;
     cachedCanvas.height = height;

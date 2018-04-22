@@ -16,5 +16,5 @@ export default function TileSheet(imageAsset, tileWidth, tileHeight) {
 
   const getTile = (x, y) => tiles[x][y];
 
-  return { imageAsset, getTile }
+  return { imageAsset, getTile, tileWidth, tileHeight }
 }

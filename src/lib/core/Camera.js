@@ -24,20 +24,22 @@ export default class Camera {
   }
 
   _focusAxis(axis, v) {
-    if (this._levelSize.w <= this._viewPort.w) {
+    const axisDim = axis === 'x' ? 'w' : 'h';
+
+    if (this._levelSize[axisDim] <= this._viewPort[axisDim]) {
       this.offset[axis] = 0;
     } else {
-      const edgeBuffer = this._viewPort.w / 2;
+      const edgeBuffer = this._viewPort[axisDim] / 2;
 
-      // Camera can't go beyond the left edge.
+      // Camera can't go beyond the min edge.
       if (v <= edgeBuffer) {
         this.offset[axis] = 0;
         return;
       }
 
-      // Camera can't go beyond the right edge.
-      if (v >= this._levelSize.w || (this._levelSize.w - v) <= edgeBuffer) {
-        this.offset[axis] = this._levelSize.w - this._viewPort.w;
+      // Camera can't go beyond the max edge.
+      if (v >= this._levelSize[axisDim] || (this._levelSize[axisDim] - v) <= edgeBuffer) {
+        this.offset[axis] = this._levelSize[axisDim] - this._viewPort[axisDim];
         return;
       }
 

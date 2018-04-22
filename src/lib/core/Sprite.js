@@ -16,7 +16,8 @@ export default class Sprite {
     this._scale = 1;
     this.x = 0;
     this.y = 0;
-    this.draw = (canvasContext) => {}
+    this.draw = (canvasContext) => {};
+    this.isFlipped = false;
   }
 
   _draw() {
@@ -26,6 +27,7 @@ export default class Sprite {
         const dHeight = frame.tile[3] * this._scale;
         canvasContext.save();
         canvasContext.translate(this.x + this._group.x + frame.move.x, this.y + this._group.y + frame.move.y);
+        if (this.isFlipped) canvasContext.scale(-1, 1);
         canvasContext.rotate(this._rotation.radians + frame.rotation);
         canvasContext.drawImage(
           this._animations[this._animation].tileSheet.imageAsset.resource,
@@ -45,6 +47,7 @@ export default class Sprite {
 
   _useAnimation(name) {
     this._animation = name || this._animation;
+    this._draw();
   }
 
   addAnimation(name, animation) {
@@ -53,7 +56,6 @@ export default class Sprite {
     // Set the current animation to this if there's only one added so far.
     if (Object.keys(this._animations).length === 1) {
       this._useAnimation(Object.keys(this._animations)[0]);
-      this._draw();
     }
     return this;
   }
@@ -75,6 +77,8 @@ export default class Sprite {
   }
 
   playAnimation(name, frame = 0) {
+    if (this._animation === name && this._animations[this._animation]._state === 'PLAYING') return this;
+
     this.stopAnimation(this._animation);
     this._useAnimation(name);
     this._animations[this._animation].play(frame);

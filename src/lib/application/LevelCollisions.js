@@ -1,11 +1,12 @@
-export default class LevelMap {
+export default class LevelCollisions {
 
   static tileTypes = {
+    WALL: 'WALL',
+    NONE: 'NONE',
     FLOOR: 'FLOOR',
-    LIQUID: 'LIQUID',
-    ROUGH: 'ROUGH',
     SLIP: 'SLIP',
-    WALL: 'WALL'
+    ROUGH: 'ROUGH',
+    LIQUID: 'LIQUID'
   };
 
   constructor() {
@@ -38,7 +39,7 @@ export default class LevelMap {
         return this._mapLayer[y][x];
       }
     }
-    return LevelMap.tileTypes.WALL;
+    return LevelCollisions.tileTypes.WALL;
   }
 
   getTypeFromPixels(x, y) {

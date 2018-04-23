@@ -1,32 +1,33 @@
-import {application} from './index';
-import LevelMap from './LevelMap';
+import LevelCollisions from '../application/LevelCollisions';
 
 export default class Entity {
 
-  constructor() {
+  constructor(app) {
+    this._application = app;
     this.empty();
     this._init();
   }
 
+  // TODO probably move this elsewhere -- it's a game-specific feature.
   _applyFriction(dt, x, y) {
-    const current = application.level.mapLayer.getTypeFromPixels(x, y);
+    const current = this._application.level.collisions.getTypeFromPixels(x, y);
 
     let friction;
 
-    // TODO probably move this elsewhere
     switch(current) {
       default:
-      case LevelMap.tileTypes.FLOOR:
-        friction = 15;
-        break;
-      case LevelMap.tileTypes.LIQUID:
+      case LevelCollisions.tileTypes.NONE:
+      case LevelCollisions.tileTypes.FLOOR:
         friction = 20;
         break;
-      case LevelMap.tileTypes.SLIP:
-        friction = 5;
+      case LevelCollisions.tileTypes.LIQUID:
+        friction = 25;
         break;
-      case LevelMap.tileTypes.ROUGH:
-        friction = 18;
+      case LevelCollisions.tileTypes.SLIP:
+        friction = 10;
+        break;
+      case LevelCollisions.tileTypes.ROUGH:
+        friction = 23;
         break;
     }
 
@@ -49,7 +50,7 @@ export default class Entity {
   }
 
   _init() {
-    application.eventManager.subscribe('application:updates', (dt) => {
+    this._application.events.subscribe('application:updates', (dt) => {
       this._applyFriction(dt, this.x + (this.collisionBox.width / 2), this.y + (this.collisionBox.height / 2));
       const nextX = this.x + (dt * this.vx);
       const nextY = this.y + (dt * this.vy);
@@ -111,23 +112,23 @@ export default class Entity {
   }
 
   maybeMoveTo(x, y) {
-    const mapLayer = application.level.mapLayer;
+    const levelCollisions = this._application.level.collisions;
     const nextBox = this.getBox(x, y);
     const currBox = this.getBox(this.x, this.y);
 
-    if (this.vx > 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.top) === LevelMap.tileTypes.WALL ||
-        this.vx > 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelMap.tileTypes.WALL ||
-        this.vx < 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.top) === LevelMap.tileTypes.WALL ||
-        this.vx < 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.bottom) === LevelMap.tileTypes.WALL) {
+    if (this.vx > 0 && levelCollisions.getTypeFromPixels(nextBox.right, currBox.top) === LevelCollisions.tileTypes.WALL ||
+        this.vx > 0 && levelCollisions.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelCollisions.tileTypes.WALL ||
+        this.vx < 0 && levelCollisions.getTypeFromPixels(nextBox.left, currBox.top) === LevelCollisions.tileTypes.WALL ||
+        this.vx < 0 && levelCollisions.getTypeFromPixels(nextBox.left, currBox.bottom) === LevelCollisions.tileTypes.WALL) {
       this._isBounce ? this.bounce('x') : this.stop('x');
     } else {
       this.x = x;
     }
 
-    if (this.vy > 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.bottom) === LevelMap.tileTypes.WALL ||
-        this.vy > 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelMap.tileTypes.WALL ||
-        this.vy < 0 && mapLayer.getTypeFromPixels(nextBox.left, currBox.top) === LevelMap.tileTypes.WALL ||
-        this.vy < 0 && mapLayer.getTypeFromPixels(nextBox.right, currBox.top) === LevelMap.tileTypes.WALL) {
+    if (this.vy > 0 && levelCollisions.getTypeFromPixels(nextBox.left, currBox.bottom) === LevelCollisions.tileTypes.WALL ||
+        this.vy > 0 && levelCollisions.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelCollisions.tileTypes.WALL ||
+        this.vy < 0 && levelCollisions.getTypeFromPixels(nextBox.left, currBox.top) === LevelCollisions.tileTypes.WALL ||
+        this.vy < 0 && levelCollisions.getTypeFromPixels(nextBox.right, currBox.top) === LevelCollisions.tileTypes.WALL) {
       this._isBounce ? this.bounce('y') : this.stop('y');
     } else {
       this.y = y;

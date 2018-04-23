@@ -1,6 +1,4 @@
-import {application} from './index';
-
-export default class EntityManager {
+export default class Entities {
 
   constructor() {
     this.empty();
@@ -14,7 +12,7 @@ export default class EntityManager {
     this._entities.push(entity);
   }
 
-  checkCollisions(dt) {
+  checkCollisions(collideCallback) {
     let entitiesB = this._entities.slice();
 
     this._entities.forEach(entityA => {
@@ -26,7 +24,7 @@ export default class EntityManager {
             (boxA.bottom > boxB.top && boxA.bottom < boxB.bottom && boxA.left > boxB.left && boxA.left < boxB.right) ||
             (boxA.top > boxB.bottom && boxA.top < boxB.top && boxA.right > boxB.left && boxA.right < boxB.right) ||
             (boxA.top > boxB.bottom && boxA.top < boxB.top && boxA.left > boxB.left && boxA.left < boxB.right)) {
-          application.eventManager.publish('entities:collision', { dt, entityA, entityB });
+          collideCallback(entityA, entityB);
         }
       });
     });

@@ -1,9 +1,9 @@
 /**
- * Class EventManager
+ * Class Events
  *
  * A pub-sub implementation with a simple event _pool.
  */
-export default class EventManager {
+export default class Events {
 
   /**
    * Initialize empty _listeners and event _pool.
@@ -39,6 +39,7 @@ export default class EventManager {
    *
    * @param {string} eventKey
    * @param {function} callback
+   * @param {number} count
    */
   subscribe(eventKey, callback, count = 0) {
     if (eventKey in this._listeners) {

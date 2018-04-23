@@ -1,8 +1,19 @@
-import {application} from './index';
 import {Degrees} from '../util/Math';
 
 export default class Animation {
-  constructor(tileSheet, options) {
+  
+  static states = {
+    STOPPED: 'STOPPED',
+    PLAYING: 'PLAYING'
+  };
+  
+  constructor(app, tileSheet) {
+    this.tileSheet = tileSheet;
+    this.application = app;
+    this.empty();
+  }
+  
+  empty() {
     this._callbacks = {
       onFrame: (frame) => {},
       onLoop: (count) => {},
@@ -12,34 +23,23 @@ export default class Animation {
     this._frameAcc = 0;
     this._frame = 0; // First loop adds to it before displaying.
     this._frames = [];
+    this._framesPerSecond = 60;
+    this._isLoop = false;
+    this._loops = 0;
     this._loopCount = 0;
-    this._options = {
-      framesPerSecond: options.framesPerSecond || 60,
-      isLoop: options.isLoop || false,
-      loopCount: options.loopCount || 0
-    };
-    this._states = {
-      STOPPED: 'STOPPED',
-      PLAYING: 'PLAYING'
-    };
-    this._state = this._states.STOPPED;
-    this.tileSheet = tileSheet;
-    this._init();
-  }
+    this._state = Animation.states.STOPPED;
 
-  _init() {
-    application.eventManager
-      .subscribe('application:animation', this._update.bind(this));
+    this.application.events.subscribe('application:animation', this._update.bind(this));
   }
 
   _update(dt) {
-    if (this._state !== this._states.PLAYING) return;
+    if (this._state !== Animation.states.PLAYING) return;
 
     if (this._loopCount === 0 && this._frameAcc === 0) {
       this._callbacks.onFrame(this.display(this._frame));
     }
 
-    this._frameAcc += dt * this._options.framesPerSecond;
+    this._frameAcc += dt * this._framesPerSecond;
     if (this._frameAcc < 1) {
       return;
     } else {
@@ -50,7 +50,7 @@ export default class Animation {
     if (maybeNextFrame < (this._frames.length)) {
       this._frame = maybeNextFrame;
       this._callbacks.onFrame(this.display(maybeNextFrame));
-    } else if (this._options.isLoop && (this._options.loopCount === 0 || this._loopCount < (this._options.loopCount - 1))) {
+    } else if (this._isLoop && (this._loops === 0 || this._loopCount < (this._loops - 1))) {
       this._frame = 0;
       this._callbacks.onFrame(this.display(0));
       this._loopCount++;
@@ -97,19 +97,34 @@ export default class Animation {
   };
 
   play(frame = 0) {
-    if (this._state === this._states.PLAYING) return this;
+    if (this._state === Animation.states.PLAYING) return this;
 
     this._callbacks.onStart(this.display(frame));
     this.show(frame);
-    this._state = this._states.PLAYING;
+    this._state = Animation.states.PLAYING;
   };
 
+  setFramesPerSecond(framesPerSecond) {
+    this._framesPerSecond = framesPerSecond;
+    return this;
+  }
+
+  setIsLoop(isLoop) {
+    this._isLoop = isLoop;
+    return this;
+  }
+
+  setLoops(loops) {
+    this._loops = loops;
+    return this;
+  }
+
   stop(frame = 0) {
-    if (this._state === this._states.STOPPED) return this;
+    if (this._state === Animation.states.STOPPED) return this;
 
     this.show(frame);
     this._callbacks.onStop(this.display(frame));
-    this._state = this._states.STOPPED;
+    this._state = Animation.states.STOPPED;
   };
 
   show(frame = 0) {

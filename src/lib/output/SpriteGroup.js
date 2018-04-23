@@ -1,5 +1,3 @@
-import {application} from './index';
-
 export default class SpriteGroup {
   constructor() {
     this._layers = [];

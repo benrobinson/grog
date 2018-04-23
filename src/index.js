@@ -1,6 +1,6 @@
-import {application} from './lib/core';
-import ImageAsset from './lib/core/ImageAsset';
-import ImageAssetLoader from './lib/core/ImageAssetLoader';
+import application from './lib/application';
+import ImageAsset from './lib/output/ImageAsset';
+import ImageAssetLoader from './lib/output/ImageAssetLoader';
 
 import characterSheetImage from './assets/character.png';
 import tileSheetImage from './assets/tileset.png';
@@ -8,13 +8,13 @@ import overlayImage from './assets/overset.png';
 import chickenImage from './assets/chicken.png';
 import pomImage from './assets/pom.png';
 
-import LevelDrawing from './lib/core/LevelDrawing';
-import TileSheet from './lib/core/TileSheetAsset';
-import Key from './lib/core/Key';
-import Entity from './lib/core/Entity';
-import Animation from './lib/core/Animation';
-import Sprite from './lib/core/Sprite';
-import SpriteGroup from './lib/core/SpriteGroup';
+import LevelDrawing from './lib/output/LevelDrawing';
+import TileSheet from './lib/output/TileSheetAsset';
+import Key from './lib/input/Key';
+import Entity from './lib/output/Entity';
+import Animation from './lib/output/Animation';
+import Sprite from './lib/output/Sprite';
+import SpriteGroup from './lib/output/SpriteGroup';
 import {Radians} from './lib/util/Math';
 
 window.addEventListener('load', function() {
@@ -55,17 +55,53 @@ window.addEventListener('load', function() {
 
 function setupApplication(imageAssetManager) {
 
-  application.camera.canvas.height = 48;
-  application.camera.canvas.width = 64;
-
   application.changeStage(stage);
 
-  function stage() {
+  function addPom(app, x, y) {
+    const pomAsset = imageAssetManager.getAsset('pom');
+    const pomTS = TileSheet(pomAsset, 8, 8);
+    const pom = new Entity(app);
+    pom.x = x;
+    pom.y = y;
+
+    const pomSpriteGroup = new SpriteGroup()
+      .setPosition(pom.x, pom.y)
+      .addSprite('feet', new Sprite()
+        .setPosition(0, 4)
+        .addAnimation('doot', new Animation(app, pomTS)
+          .setIsLoop(true)
+          .setFramesPerSecond(5)
+          .addFrame(2, 0)
+          .addFrame(3, 0)
+          .addFrame(2, 0)
+          .addFrame(4, 0))
+        .playAnimation('doot'))
+      .addSprite('body', new Sprite()
+        .addAnimation('front', new Animation(app, pomTS)
+          .setIsLoop(true)
+          .setFramesPerSecond(5)
+          .addFrame(0, 0, 0, 0)
+          .addFrame(0, 0, 0, 1))
+        .addAnimation('back', new Animation(app, pomTS)
+          .addFrame(2, 0))
+        .playAnimation('front'));
+
+    app.level.drawingLayers.getLayer('entities').addDrawable(pomSpriteGroup);
+
+    app.events.subscribe('application:updates', (dt) => {
+      pomSpriteGroup.setPosition(pom.x, pom.y);
+    });
+
+    app.entities.addEntity(pom);
+
+    return pom;
+  }
+
+  function stage(app) {
     const tileSetAsset = imageAssetManager.getAsset('tileset');
     const overlayAsset = imageAssetManager.getAsset('overset');
 
-    application.level.canvas.height = 96;
-    application.level.canvas.width = 64;
+    app.setLevelDimensions(64, 96);
 
     const levelDrawing = new LevelDrawing()
       .setTileSheet(new TileSheet(tileSetAsset, 8, 8))
@@ -103,7 +139,7 @@ function setupApplication(imageAssetManager) {
       ])
       .makeDrawable();
 
-    application.level.mapLayer.setTiles([
+    app.level.collisions.setTiles([
       ['WALL',  'WALL',  'FLOOR', 'WALL',  'WALL',  'WALL', 'FLOOR',  'WALL'],
       ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR'],
       ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR'],
@@ -118,19 +154,25 @@ function setupApplication(imageAssetManager) {
       ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL',  'FLOOR', 'FLOOR', 'FLOOR']
     ]);
 
-    application.camera.camera.setViewPort(64, 48).setLevelSize(64, 96);
+    app.setCameraDimensions(64, 48);
+    const cameraDiv = window.document.getElementById('camera');
+    cameraDiv.appendChild(app.camera.canvas);
 
-    application.level.drawingLayers.addLayer('background');
-    application.level.drawingLayers.getLayer('background').addDrawable(levelDrawing);
+    app.level.drawingLayers.addLayer('background');
+    app.level.drawingLayers.getLayer('background').addDrawable(levelDrawing);
 
     const characterAsset = imageAssetManager.getAsset('character');
     const characterTileSheet = TileSheet(characterAsset, 8, 8);
 
-    const entity = new Entity();
+    const entity = new Entity(app);
+    entity.speed = 30;
+    entity.acc = 100;
     entity.x = 20;
     entity.y = 20;
 
-    const walk = new Animation(characterTileSheet, {framesPerSecond: 10, isLoop: true})
+    const walk = new Animation(app, characterTileSheet)
+      .setFramesPerSecond(20)
+      .setIsLoop(true)
       .addFrame(2, 0)
       .addFrame(3, 0)
       .addFrame(4, 0)
@@ -139,12 +181,12 @@ function setupApplication(imageAssetManager) {
       .addFrame(5, 0)
       .addFrame(6, 0)
       .addFrame(5, 0);
-    const stand = new Animation(characterTileSheet, {framesPerSecond: 10, isLoop: false}).addFrame(2, 0);
-    const bodyIdle = new Animation(characterTileSheet, {framesPerSecond: 1, isLoop: false}).addFrame(1, 1);
-    const handsIdle = new Animation(characterTileSheet, {framesPerSecond: 1, isLoop: false}).addFrame(0, 1);
+    const stand = new Animation(app, characterTileSheet).addFrame(2, 0);
+    const bodyIdle = new Animation(app, characterTileSheet).addFrame(1, 1);
+    const handsIdle = new Animation(app, characterTileSheet).addFrame(0, 1);
 
-    const headFront = new Animation(characterTileSheet, {framesPerSecond: 1, isLoop: false}).addFrame(0, 0);
-    const headBack = new Animation(characterTileSheet, {framesPerSecond: 1, isLoop: false}).addFrame(1, 0);
+    const headFront = new Animation(app, characterTileSheet).addFrame(0, 0);
+    const headBack = new Animation(app, characterTileSheet).addFrame(1, 0);
 
     const feet = new Sprite()
       .addAnimation('walk', walk)
@@ -170,36 +212,40 @@ function setupApplication(imageAssetManager) {
       .addSprite('feet', feet)
       .addSprite('body', body)
       .addSprite('hands', hands)
-      .addSprite('head', head);
+      .addSprite('head', head)
+      .setPosition(20, 20);
 
-    application.level.drawingLayers.addLayer('entities');
+    app.level.drawingLayers.addLayer('entities');
 
-    application.level.drawingLayers.addLayer('foreground');
-    application.level.drawingLayers.getLayer('foreground').addDrawable(overlay);
+    app.level.drawingLayers.addLayer('foreground');
+    app.level.drawingLayers.getLayer('foreground').addDrawable(overlay);
 
-    application.eventManager.subscribe('keydown', function(event) { Key.onDown(event); });
-    application.eventManager.subscribe('keyup', function(event) { Key.onUp(event); });
+    app.events.subscribe('keydown', function(event) { Key.onDown(event); });
+    app.events.subscribe('keyup', function(event) { Key.onUp(event); });
 
-    window.addEventListener('keyup', function(event) { application.eventManager.publish('keyup', event); }, false);
-    window.addEventListener('keydown', function(event) { application.eventManager.publish('keydown', event); }, false);
+    window.addEventListener('keyup', function(event) { app.events.publish('keyup', event); }, false);
+    window.addEventListener('keydown', function(event) { app.events.publish('keydown', event); }, false);
 
+    window.spriteGroup = spriteGroup;
 
     // Chicken
     const chickenAsset = imageAssetManager.getAsset('chicken');
     const chickenTileSheet = TileSheet(chickenAsset, 8, 8);
-    const chicken = new Entity();
+    const chicken = new Entity(app);
     chicken.x = 40;
     chicken.y = 30;
 
-    const chickenFrontAnim = new Animation(chickenTileSheet, {isLoop: true, framesPerSecond: 1})
+    const chickenFrontAnim = new Animation(app, chickenTileSheet)
+      .setFramesPerSecond(10)
+      .setIsLoop(true)
       .addFrame(0, 0, 0, 0)
       .addFrame(0, 0, 0, -1)
       .addFrame(0, 0, 0, 0)
       .addFrame(1, 0, 0, 0)
       .addFrame(1, 0, 0, -1)
       .addFrame(1, 0, 0, 0);
-    const chickenBackAnim = new Animation(chickenTileSheet, {isLoop: false, framesPerSecond: 1}).addFrame(1, 0);
-    const chickenFeetAnim = new Animation(chickenTileSheet, {isLoop: true, framesPerSecond: 5}).addFrame(2, 0);
+    const chickenBackAnim = new Animation(app, chickenTileSheet).setFramesPerSecond(1).addFrame(1, 0);
+    const chickenFeetAnim = new Animation(app, chickenTileSheet).setFramesPerSecond(1).addFrame(2, 0);
 
     const chickenBody = new Sprite()
       .addAnimation('front', chickenFrontAnim)
@@ -216,42 +262,14 @@ function setupApplication(imageAssetManager) {
       .addSprite('body', chickenBody)
       .setPosition(chicken.x, chicken.y);
 
-    // POM
-
-    const pomAsset = imageAssetManager.getAsset('pom');
-    const pomTS = TileSheet(pomAsset, 8, 8);
-    const pom = new Entity();
-    pom.x = 25;
-    pom.y = 86;
-
-    const pomSpriteGroup = new SpriteGroup()
-      .setPosition(pom.x, pom.y)
-      .addSprite('feet', new Sprite()
-        .setPosition(0, 4)
-        .addAnimation('doot', new Animation(pomTS, {isLoop: true, framesPerSecond: 3})
-          .addFrame(2, 0)
-          .addFrame(3, 0)
-          .addFrame(2, 0)
-          .addFrame(4, 0))
-        .playAnimation('doot'))
-      .addSprite('body', new Sprite()
-        .addAnimation('front', new Animation(pomTS, {isLoop: true, framesPerSecond: 2})
-          .addFrame(0, 0, 0, 0)
-          .addFrame(0, 0, 0, 1))
-        .addAnimation('back', new Animation(pomTS, {isLoop: false, framesPerSecond: 1})
-          .addFrame(2, 0))
-        .playAnimation('front'));
-
     application.level.drawingLayers.getLayer('entities').addDrawable(chickenSpriteGroup);
-    application.level.drawingLayers.getLayer('entities').addDrawable(pomSpriteGroup);
-    application.level.drawingLayers.getLayer('entities').addDrawable(spriteGroup);
+    app.level.drawingLayers.getLayer('entities').addDrawable(spriteGroup);
 
-    application.entities.addEntity(entity);
+    app.entities.addEntity(entity);
     application.entities.addEntity(chicken);
-    application.entities.addEntity(pom);
 
     // TODO move this into a utility
-    application.eventManager.subscribe('entities:collision', es => {
+    app.events.subscribe('entities:collision', es => {
       const newVX = (Math.abs(es.entityA.vx) + Math.abs(es.entityB.vx)) / 2;
       const newVY = (Math.abs(es.entityA.vy) + Math.abs(es.entityB.vy)) / 2;
 
@@ -260,10 +278,10 @@ function setupApplication(imageAssetManager) {
       const vxB = -vxA;
       const vyB = -vyA;
 
-      es.entityA.vx = vxA;
-      es.entityA.vy = vyA;
-      es.entityB.vx = vxB;
-      es.entityB.vy = vyB;
+      es.entityA.vx = vxA / 2;
+      es.entityA.vy = vyA / 2;
+      es.entityB.vx = vxB / 2;
+      es.entityB.vy = vyB / 2;
 
       es.entityA.x += es.entityA.vx * 3 * es.dt;
       es.entityA.y += es.entityA.vy * 3 * es.dt;
@@ -271,26 +289,31 @@ function setupApplication(imageAssetManager) {
       es.entityB.y += es.entityB.vy * 3 * es.dt;
     });
 
-    application.eventManager.subscribe('application:updates', (dt) => {
+    app.events.subscribe('application:updates', (dt) => {
       if (Key.isDown(Key.LEFT)) {
         spriteGroup.sprites.head.isFlipped = true;
         entity.decX(dt);
+        // entity.vx = -entity.speed;
       }
 
       if (Key.isDown(Key.RIGHT)) {
         spriteGroup.sprites.head.isFlipped = false;
         entity.accX(dt);
+        // entity.vx = entity.speed;
       }
 
       if (Key.isDown(Key.UP)) {
         spriteGroup.sprites.head.playAnimation('back');
         entity.decY(dt);
+        // entity.vy = -entity.speed;
       }
 
       if (Key.isDown(Key.DOWN)) {
         spriteGroup.sprites.head.playAnimation('front');
         entity.accY(dt);
+        // entity.vy = entity.speed;
       }
+
 
       if (Math.abs(entity.vx) === 0 && Math.abs(entity.vy) === 0) {
         spriteGroup.sprites.feet.playAnimation('stand');
@@ -305,28 +328,21 @@ function setupApplication(imageAssetManager) {
 
       spriteGroup.setPosition(entity.x, entity.y);
       chickenSpriteGroup.setPosition(chicken.x, chicken.y);
-      pomSpriteGroup.setPosition(pom.x, pom.y);
 
-      application.camera.camera.setFocalPoint(entity.x, entity.y - 4);
-      application.camera.camera.refocus();
+      // console.log(entity.vx, entity.vy);
+
+      app.camera.setFocalPoint(entity.x, entity.y - 4);
+      app.camera.refocus();
     });
 
-    application.camera.canvas.style.imageRendering = 'pixelated';
-    application.camera.canvasContext.mozImageSmoothingEnabled = false;
-    application.camera.canvasContext.webkitImageSmoothingEnabled = false;
-    application.camera.canvasContext.msImageSmoothingEnabled = false;
-    application.camera.canvasContext.imageSmoothingEnabled = false;
+    const pom1 = addPom(app, 40, 20);
+    const pom2 = addPom(app, 50, 30);
+    const pom3 = addPom(app, 30, 30);
 
-    application.level.canvas.style.imageRendering = 'pixelated';
-    application.level.canvasContext.mozImageSmoothingEnabled = false;
-    application.level.canvasContext.webkitImageSmoothingEnabled = false;
-    application.level.canvasContext.msImageSmoothingEnabled = false;
-    application.level.canvasContext.imageSmoothingEnabled = false;
+    app.camera.canvas.style.width = '320px';
 
-    application.camera.canvas.style.width = '320px';
+    app.start();
 
-    application.run();
-
-    window.application = application;
+    window.app = app;
   }
 }

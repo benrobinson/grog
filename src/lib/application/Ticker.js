@@ -12,15 +12,13 @@ export default class Ticker {
   _tick() {
     if (this._state !== Ticker.states.TICKING) return;
 
-    setTimeout(() => {
-      const time = new Date().getTime();
-      const dt = (time - this._time) / 1000;
+    const time = new Date().getTime();
+    const dt = (time - this._time) / 1000;
 
-      this._listeners.map((listener) => listener.fn.apply(listener.context, [dt]));
+    this._listeners.map((listener) => listener.fn.apply(listener.context, [dt]));
+    this._time = time;
 
-      this._time = time;
-      window.requestAnimationFrame(this._tick.bind(this))
-    }, 1000 / 60);
+    window.requestAnimationFrame(this._tick.bind(this));
   }
 
   addListener(fn, context) {

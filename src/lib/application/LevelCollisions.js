@@ -1,7 +1,7 @@
 export default class LevelCollisions {
 
   static tileTypes = {
-    WALL: 'WALL',
+    SOLID: 'SOLID',
     NONE: 'NONE',
     FLOOR: 'FLOOR',
     SLIP: 'SLIP',
@@ -39,7 +39,7 @@ export default class LevelCollisions {
         return this._mapLayer[y][x];
       }
     }
-    return LevelCollisions.tileTypes.WALL;
+    return LevelCollisions.tileTypes.SOLID;
   }
 
   getTypeFromPixels(x, y) {

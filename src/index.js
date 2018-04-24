@@ -16,6 +16,7 @@ import Animation from './lib/output/Animation';
 import Sprite from './lib/output/Sprite';
 import SpriteGroup from './lib/output/SpriteGroup';
 import {Radians} from './lib/util/Math';
+import LevelCollisions from './lib/application/LevelCollisions';
 
 window.addEventListener('load', function() {
   new ImageAssetLoader()
@@ -60,9 +61,7 @@ function setupApplication(imageAssetManager) {
   function addPom(app, x, y) {
     const pomAsset = imageAssetManager.getAsset('pom');
     const pomTS = TileSheet(pomAsset, 8, 8);
-    const pom = new Entity(app);
-    pom.x = x;
-    pom.y = y;
+    const pom = new Entity(app).setPosition(x, y);
 
     const pomSpriteGroup = new SpriteGroup()
       .setPosition(pom.x, pom.y)
@@ -140,18 +139,18 @@ function setupApplication(imageAssetManager) {
       .makeDrawable();
 
     app.level.collisions.setTiles([
-      ['WALL',  'WALL',  'FLOOR', 'WALL',  'WALL',  'WALL', 'FLOOR',  'WALL'],
+      ['SOLID', 'SOLID', 'FLOOR', 'SOLID', 'SOLID', 'SOLID', 'FLOOR', 'SOLID'],
       ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR'],
       ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR'],
       ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR'],
       ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR'],
-      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL',  'WALL',  'WALL',  'WALL'],
-      ['FLOOR', 'FLOOR', 'WALL', 'FLOOR', 'WALL',  'WALL',  'WALL',  'WALL'],
-      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL',  'FLOOR', 'FLOOR', 'FLOOR'],
-      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL',  'FLOOR', 'FLOOR', 'FLOOR'],
-      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL',  'FLOOR', 'FLOOR', 'FLOOR'],
-      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL',  'FLOOR', 'FLOOR', 'FLOOR'],
-      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL',  'FLOOR', 'FLOOR', 'FLOOR']
+      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'SOLID', 'SOLID', 'SOLID', 'SOLID'],
+      ['FLOOR', 'FLOOR', 'SOLID', 'FLOOR', 'SOLID', 'SOLID', 'SOLID', 'SOLID'],
+      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'SOLID', 'FLOOR', 'FLOOR', 'FLOOR'],
+      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'SOLID', 'FLOOR', 'FLOOR', 'FLOOR'],
+      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'SOLID', 'FLOOR', 'FLOOR', 'FLOOR'],
+      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'SOLID', 'FLOOR', 'FLOOR', 'FLOOR'],
+      ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'SOLID', 'FLOOR', 'FLOOR', 'FLOOR']
     ]);
 
     app.setCameraDimensions(64, 48);
@@ -164,11 +163,11 @@ function setupApplication(imageAssetManager) {
     const characterAsset = imageAssetManager.getAsset('character');
     const characterTileSheet = TileSheet(characterAsset, 8, 8);
 
-    const entity = new Entity(app);
-    entity.speed = 30;
-    entity.acc = 100;
-    entity.x = 20;
-    entity.y = 20;
+    const entity = new Entity(app)
+      .setSpeed(30)
+      .setAcc(100)
+      .setPosition(20, 20)
+      .setOffset(-2, -4);
 
     const walk = new Animation(app, characterTileSheet)
       .setFramesPerSecond(20)
@@ -231,9 +230,7 @@ function setupApplication(imageAssetManager) {
     // Chicken
     const chickenAsset = imageAssetManager.getAsset('chicken');
     const chickenTileSheet = TileSheet(chickenAsset, 8, 8);
-    const chicken = new Entity(app);
-    chicken.x = 40;
-    chicken.y = 30;
+    const chicken = new Entity(app).setPosition(30, 40).setOffset(0, -2);
 
     const chickenFrontAnim = new Animation(app, chickenTileSheet)
       .setFramesPerSecond(10)
@@ -269,7 +266,7 @@ function setupApplication(imageAssetManager) {
     application.entities.addEntity(chicken);
 
     // TODO move this into a utility
-    app.events.subscribe('entities:collision', es => {
+    app.events.subscribe('entities:entity-collision', es => {
       const newVX = (Math.abs(es.entityA.vx) + Math.abs(es.entityB.vx)) / 2;
       const newVY = (Math.abs(es.entityA.vy) + Math.abs(es.entityB.vy)) / 2;
 
@@ -278,10 +275,10 @@ function setupApplication(imageAssetManager) {
       const vxB = -vxA;
       const vyB = -vyA;
 
-      es.entityA.vx = vxA / 2;
-      es.entityA.vy = vyA / 2;
-      es.entityB.vx = vxB / 2;
-      es.entityB.vy = vyB / 2;
+      es.entityA.vx = vxA;
+      es.entityA.vy = vyA;
+      es.entityB.vx = vxB;
+      es.entityB.vy = vyB;
 
       es.entityA.x += es.entityA.vx * 3 * es.dt;
       es.entityA.y += es.entityA.vy * 3 * es.dt;
@@ -289,29 +286,27 @@ function setupApplication(imageAssetManager) {
       es.entityB.y += es.entityB.vy * 3 * es.dt;
     });
 
+    collisionFunctions(app);
+
     app.events.subscribe('application:updates', (dt) => {
       if (Key.isDown(Key.LEFT)) {
         spriteGroup.sprites.head.isFlipped = true;
-        entity.decX(dt);
-        // entity.vx = -entity.speed;
+        entity.vx = -entity.speed;
       }
 
       if (Key.isDown(Key.RIGHT)) {
         spriteGroup.sprites.head.isFlipped = false;
-        entity.accX(dt);
-        // entity.vx = entity.speed;
+        entity.vx = entity.speed;
       }
 
       if (Key.isDown(Key.UP)) {
         spriteGroup.sprites.head.playAnimation('back');
-        entity.decY(dt);
-        // entity.vy = -entity.speed;
+        entity.vy = -entity.speed;
       }
 
       if (Key.isDown(Key.DOWN)) {
         spriteGroup.sprites.head.playAnimation('front');
-        entity.accY(dt);
-        // entity.vy = entity.speed;
+        entity.vy = entity.speed;
       }
 
 
@@ -329,8 +324,6 @@ function setupApplication(imageAssetManager) {
       spriteGroup.setPosition(entity.x, entity.y);
       chickenSpriteGroup.setPosition(chicken.x, chicken.y);
 
-      // console.log(entity.vx, entity.vy);
-
       app.camera.setFocalPoint(entity.x, entity.y - 4);
       app.camera.refocus();
     });
@@ -345,4 +338,58 @@ function setupApplication(imageAssetManager) {
 
     window.app = app;
   }
+}
+
+function collisionFunctions(app) {
+
+  function bounce(entity, axis) {
+    entity[`v${axis}`] = (-entity[`v${axis}`]) / 2;
+  }
+
+  function applyFriction(data) {
+    const x = data.entity.x + (data.entity.width / 2);
+    const y = data.entity.y + (data.entity.height / 2);
+    const current = app.level.collisions.getTypeFromPixels(x, y);
+
+    let friction;
+
+    switch (current) {
+      default:
+      case LevelCollisions.tileTypes.NONE:
+      case LevelCollisions.tileTypes.FLOOR:
+        friction = 20;
+        break;
+      case LevelCollisions.tileTypes.LIQUID:
+        friction = 25;
+        break;
+      case LevelCollisions.tileTypes.SLIP:
+        friction = 10;
+        break;
+      case LevelCollisions.tileTypes.ROUGH:
+        friction = 23;
+        break;
+    }
+
+    const nextVx = Math.abs(data.entity.vx) - friction * data.dt;
+    const nextVy = Math.abs(data.entity.vy) - friction * data.dt;
+
+    if (nextVx <= 0) {
+      data.entity.vx = 0;
+    } else {
+      data.entity.vx = data.entity.vx > 0 ? nextVx : -nextVx;
+    }
+
+    if (nextVy <= 0) {
+      data.entity.vy = 0;
+    } else {
+      data.entity.vy = data.entity.vy > 0 ? nextVy : -nextVy;
+    }
+  }
+
+  function handleLevelCollision(data) {
+    bounce(data.entity, data.dimension);
+  }
+
+  app.events.subscribe('entities:level-collision', handleLevelCollision);
+  app.events.subscribe('entities:movement', applyFriction);
 }

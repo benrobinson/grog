@@ -23,6 +23,7 @@ export default class Application {
 
     this.events.subscribe('application:drawing', () => {
 
+      // TODO: could be left to the config maybe
       this.camera.canvas.style.imageRendering = 'pixelated';
       this.camera.canvasContext.mozImageSmoothingEnabled = false;
       this.camera.canvasContext.webkitImageSmoothingEnabled = false;
@@ -44,21 +45,29 @@ export default class Application {
     });
 
     this.events.subscribe('application:updates', (dt) => {
-      this.entities.checkCollisions((entityA, entityB) => {
-        this.events.publish('entities:collision', { dt, entityA, entityB });
-      });
+      this.entities
+        .onEntityCollisions((entityA, entityB) => {
+          this.events.publish('entities:entity-collision', { dt, entityA, entityB });
+        })
+        .onLevelCollisions(this.level.collisions, dt, (entity, dimension) => {
+          this.events.publish('entities:level-collision', { dt, entity, dimension })
+        })
+        .onMovement((entity) => {
+          this.events.publish('entities:movement', {dt, entity});
+        });
     });
 
     this.ticker.addListener((dt) => {
-      // console.log(dt);
       this.events
         .publish('application:animation', dt)
         .publish('application:drawing', dt)
+        .publish('application:input', dt)
         .publish('application:updates', dt);
 
       this.events
         .propagate('application:animation')
         .propagate('application:drawing')
+        .propagate('application:input')
         .propagate('application:updates')
         .propagateAll();
     }, null);

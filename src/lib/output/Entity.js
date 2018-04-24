@@ -8,54 +8,8 @@ export default class Entity {
     this._init();
   }
 
-  // TODO probably move this elsewhere -- it's a game-specific feature.
-  _applyFriction(dt, x, y) {
-    const current = this._application.level.collisions.getTypeFromPixels(x, y);
-
-    let friction;
-
-    switch(current) {
-      default:
-      case LevelCollisions.tileTypes.NONE:
-      case LevelCollisions.tileTypes.FLOOR:
-        friction = 20;
-        break;
-      case LevelCollisions.tileTypes.LIQUID:
-        friction = 25;
-        break;
-      case LevelCollisions.tileTypes.SLIP:
-        friction = 10;
-        break;
-      case LevelCollisions.tileTypes.ROUGH:
-        friction = 23;
-        break;
-    }
-
-    const nextVx = Math.abs(this.vx) - friction * dt;
-    const nextVy = Math.abs(this.vy) - friction * dt;
-
-    if (nextVx <= 0) {
-      this.vx = 0;
-    } else {
-      this.vx = this.vx > 0 ? nextVx : -nextVx;
-    }
-
-    if (nextVy <= 0) {
-      this.vy = 0;
-    } else {
-      this.vy = this.vy > 0 ? nextVy : -nextVy;
-    }
-
-    return this;
-  }
-
   _init() {
-    this._application.events.subscribe('application:updates', (dt) => {
-      this._applyFriction(dt, this.x + (this.collisionBox.width / 2), this.y + (this.collisionBox.height / 2));
-      const nextX = this.x + (dt * this.vx);
-      const nextY = this.y + (dt * this.vy);
-      this.maybeMoveTo(nextX, nextY);
-    });
+
   }
 
   empty() {
@@ -63,84 +17,59 @@ export default class Entity {
     this.y = 0;
     this.vx = 0;
     this.vy = 0;
-    this.speed = 30;
     this.acc = 30;
-    this.collisionBox = {
-      width: 4,
-      height: 4,
-      offset: {
-        x: -2,
-        y: -4
-      }
+    this.speed = 30;
+    this.width = 4;
+    this.height = 4;
+    this.offset = {
+      x: 0,
+      y: 0
     };
-    this._isBounce = true;
     return this;
   }
 
-  bounce(axis) {
-    this[`v${axis}`] = -this[`v${axis}`];
+  setAcc(acc) {
+    this.acc = acc;
+    return this;
   }
 
-  isBounce() {
-    this._isBounce = true;
+  setDimensions(width, height) {
+    this.width = width;
+    this.height = height;
+  }
+
+  setOffset(x, y) {
+    this.offset = { x, y };
+    return this;
+  }
+
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
+    return this;
+  }
+
+  setSpeed(speed) {
+    this.speed = speed;
+    return this;
+  }
+
+  setVx(vx) {
+    this.vx = vx;
+    return this;
+  }
+
+  setVy(vy) {
+    this.vy = vy;
     return this;
   }
 
   getBox(x, y) {
     return {
-      left: x + this.collisionBox.offset.x,
-      right: x + this.collisionBox.offset.x + this.collisionBox.width,
-      top: y + this.collisionBox.offset.y,
-      bottom: y + this.collisionBox.offset.y + this.collisionBox.height
+      left: x + this.offset.x,
+      right: x + this.offset.x + this.width,
+      top: y + this.offset.y,
+      bottom: y + this.offset.y + this.height
     }
-  }
-
-  accX(dt) {
-    this.vx = this.vx >= this.speed ? this.vx : this.vx + this.acc * dt;
-  }
-
-  accY(dt) {
-    this.vy = this.vy >= this.speed ? this.vy : this.vy + this.acc * dt;
-  }
-
-  decX(dt) {
-    this.vx = this.vx <= -this.speed ? this.vx : this.vx - this.acc * dt;
-  }
-
-  decY(dt) {
-    this.vy = this.vy <= -this.speed ? this.vy : this.vy - this.acc * dt;
-  }
-
-  maybeMoveTo(x, y) {
-    const levelCollisions = this._application.level.collisions;
-    const nextBox = this.getBox(x, y);
-    const currBox = this.getBox(this.x, this.y);
-
-    if (this.vx > 0 && levelCollisions.getTypeFromPixels(nextBox.right, currBox.top) === LevelCollisions.tileTypes.WALL ||
-        this.vx > 0 && levelCollisions.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelCollisions.tileTypes.WALL ||
-        this.vx < 0 && levelCollisions.getTypeFromPixels(nextBox.left, currBox.top) === LevelCollisions.tileTypes.WALL ||
-        this.vx < 0 && levelCollisions.getTypeFromPixels(nextBox.left, currBox.bottom) === LevelCollisions.tileTypes.WALL) {
-      this._isBounce ? this.bounce('x') : this.stop('x');
-    } else {
-      this.x = x;
-    }
-
-    if (this.vy > 0 && levelCollisions.getTypeFromPixels(nextBox.left, currBox.bottom) === LevelCollisions.tileTypes.WALL ||
-        this.vy > 0 && levelCollisions.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelCollisions.tileTypes.WALL ||
-        this.vy < 0 && levelCollisions.getTypeFromPixels(nextBox.left, currBox.top) === LevelCollisions.tileTypes.WALL ||
-        this.vy < 0 && levelCollisions.getTypeFromPixels(nextBox.right, currBox.top) === LevelCollisions.tileTypes.WALL) {
-      this._isBounce ? this.bounce('y') : this.stop('y');
-    } else {
-      this.y = y;
-    }
-  }
-
-  stop(axis) {
-    this[`v${axis}`] = 0;
-  }
-
-  stopBoth() {
-    this.stop('x');
-    this.stop('y');
   }
 }

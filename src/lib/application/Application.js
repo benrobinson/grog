@@ -23,7 +23,6 @@ export default class Application {
 
     this.events.subscribe('application:drawing', () => {
 
-      // TODO: could be left to the config maybe
       this.camera.canvas.style.imageRendering = 'pixelated';
       this.camera.canvasContext.mozImageSmoothingEnabled = false;
       this.camera.canvasContext.webkitImageSmoothingEnabled = false;

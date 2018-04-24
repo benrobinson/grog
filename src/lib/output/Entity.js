@@ -2,14 +2,8 @@ import LevelCollisions from '../application/LevelCollisions';
 
 export default class Entity {
 
-  constructor(app) {
-    this._application = app;
+  constructor() {
     this.empty();
-    this._init();
-  }
-
-  _init() {
-
   }
 
   empty() {
@@ -25,6 +19,7 @@ export default class Entity {
       x: 0,
       y: 0
     };
+    this.spriteGroup = null;
     return this;
   }
 
@@ -54,6 +49,11 @@ export default class Entity {
     return this;
   }
 
+  setSpriteGroup(spriteGroup) {
+    this.spriteGroup = spriteGroup;
+    return this;
+  }
+
   setVx(vx) {
     this.vx = vx;
     return this;
@@ -70,6 +70,12 @@ export default class Entity {
       right: x + this.offset.x + this.width,
       top: y + this.offset.y,
       bottom: y + this.offset.y + this.height
+    }
+  }
+
+  draw(canvasContext) {
+    if (!!this.spriteGroup) {
+      this.spriteGroup.draw(canvasContext);
     }
   }
 }

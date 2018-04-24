@@ -61,10 +61,8 @@ function setupApplication(imageAssetManager) {
   function addPom(app, x, y) {
     const pomAsset = imageAssetManager.getAsset('pom');
     const pomTS = TileSheet(pomAsset, 8, 8);
-    const pom = new Entity(app).setPosition(x, y);
 
     const pomSpriteGroup = new SpriteGroup()
-      .setPosition(pom.x, pom.y)
       .addSprite('feet', new Sprite()
         .setPosition(0, 4)
         .addAnimation('doot', new Animation(app, pomTS)
@@ -85,13 +83,11 @@ function setupApplication(imageAssetManager) {
           .addFrame(2, 0))
         .playAnimation('front'));
 
-    app.level.drawingLayers.getLayer('entities').addDrawable(pomSpriteGroup);
+    const pom = new Entity(app)
+      .setPosition(x, y)
+      .setSpriteGroup(pomSpriteGroup);
 
-    app.events.subscribe('application:updates', (dt) => {
-      pomSpriteGroup.setPosition(pom.x, pom.y);
-    });
-
-    app.entities.addEntity(pom);
+    app.entities.addEntity(pom, app.level.drawingLayers.getLayer('entities'));
 
     return pom;
   }
@@ -163,12 +159,6 @@ function setupApplication(imageAssetManager) {
     const characterAsset = imageAssetManager.getAsset('character');
     const characterTileSheet = TileSheet(characterAsset, 8, 8);
 
-    const entity = new Entity(app)
-      .setSpeed(30)
-      .setAcc(100)
-      .setPosition(20, 20)
-      .setOffset(-2, -4);
-
     const walk = new Animation(app, characterTileSheet)
       .setFramesPerSecond(20)
       .setIsLoop(true)
@@ -225,12 +215,16 @@ function setupApplication(imageAssetManager) {
     window.addEventListener('keyup', function(event) { app.events.publish('keyup', event); }, false);
     window.addEventListener('keydown', function(event) { app.events.publish('keydown', event); }, false);
 
-    window.spriteGroup = spriteGroup;
+    const entity = new Entity()
+      .setSpeed(30)
+      .setAcc(100)
+      .setPosition(20, 20)
+      .setOffset(-2, -4)
+      .setSpriteGroup(spriteGroup);
 
     // Chicken
     const chickenAsset = imageAssetManager.getAsset('chicken');
     const chickenTileSheet = TileSheet(chickenAsset, 8, 8);
-    const chicken = new Entity(app).setPosition(30, 40).setOffset(0, -2);
 
     const chickenFrontAnim = new Animation(app, chickenTileSheet)
       .setFramesPerSecond(10)
@@ -256,14 +250,15 @@ function setupApplication(imageAssetManager) {
 
     const chickenSpriteGroup = new SpriteGroup()
       .addSprite('feet', chickenFeet)
-      .addSprite('body', chickenBody)
-      .setPosition(chicken.x, chicken.y);
+      .addSprite('body', chickenBody);
 
-    application.level.drawingLayers.getLayer('entities').addDrawable(chickenSpriteGroup);
-    app.level.drawingLayers.getLayer('entities').addDrawable(spriteGroup);
+    const chicken = new Entity()
+      .setPosition(30, 40)
+      .setOffset(0, -2)
+      .setSpriteGroup(chickenSpriteGroup);
 
-    app.entities.addEntity(entity);
-    application.entities.addEntity(chicken);
+    app.entities.addEntity(entity, app.level.drawingLayers.getLayer('entities'));
+    app.entities.addEntity(chicken, app.level.drawingLayers.getLayer('entities'));
 
     // TODO move this into a utility
     app.events.subscribe('entities:entity-collision', es => {
@@ -288,27 +283,26 @@ function setupApplication(imageAssetManager) {
 
     collisionFunctions(app);
 
-    app.events.subscribe('application:updates', (dt) => {
+    app.events.subscribe('application:input', (dt) => {
       if (Key.isDown(Key.LEFT)) {
         spriteGroup.sprites.head.isFlipped = true;
-        entity.vx = -entity.speed;
+        entity.vx -= entity.acc * dt;
       }
 
       if (Key.isDown(Key.RIGHT)) {
         spriteGroup.sprites.head.isFlipped = false;
-        entity.vx = entity.speed;
+        entity.vx += entity.acc * dt;
       }
 
       if (Key.isDown(Key.UP)) {
         spriteGroup.sprites.head.playAnimation('back');
-        entity.vy = -entity.speed;
+        entity.vy -= entity.acc * dt;
       }
 
       if (Key.isDown(Key.DOWN)) {
         spriteGroup.sprites.head.playAnimation('front');
-        entity.vy = entity.speed;
+        entity.vy += entity.acc * dt;
       }
-
 
       if (Math.abs(entity.vx) === 0 && Math.abs(entity.vy) === 0) {
         spriteGroup.sprites.feet.playAnimation('stand');

@@ -11,9 +11,18 @@ export default class Entities {
     return this;
   }
 
-  addEntity(entity) {
+  addEntity(entity, drawingLayer) {
     this._entities.push(entity);
+    drawingLayer.addDrawable(entity);
     return this;
+  }
+
+  doUpdateSpriteGroup(dt) {
+    this._entities.forEach(entity => {
+      if (!!entity.spriteGroup) {
+        entity.spriteGroup.setPosition(entity.x, entity.y);
+      }
+    });
   }
 
   onEntityCollisions(callback) {

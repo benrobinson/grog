@@ -54,7 +54,8 @@ export default class Application {
         })
         .onMovement((entity) => {
           this.events.publish('entities:movement', {dt, entity});
-        });
+        })
+        .doUpdateSpriteGroup(dt);
     });
 
     this.ticker.addListener((dt) => {

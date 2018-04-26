@@ -1,4 +1,5 @@
 import {Degrees} from '../util/Math';
+import Events from '../application/Events';
 
 export default class Animation {
   
@@ -29,7 +30,7 @@ export default class Animation {
     this._loopCount = 0;
     this._state = Animation.states.STOPPED;
 
-    this.application.events.subscribe('application:animation', this._update.bind(this));
+    this.application.events.subscribe(Events.common.APPLICATION_ANIMATION, this._update.bind(this));
   }
 
   _update(dt) {

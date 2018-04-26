@@ -63,10 +63,10 @@ export default class Entities {
         entity.x = nextX;
       }
 
-      if (entity.vy > 0 && levelCollisions.getTypeFromPixels(nextBox.left, currBox.bottom) === LevelCollisions.tileTypes.SOLID ||
-          entity.vy > 0 && levelCollisions.getTypeFromPixels(nextBox.right, currBox.bottom) === LevelCollisions.tileTypes.SOLID ||
-          entity.vy < 0 && levelCollisions.getTypeFromPixels(nextBox.left, currBox.top) === LevelCollisions.tileTypes.SOLID ||
-          entity.vy < 0 && levelCollisions.getTypeFromPixels(nextBox.right, currBox.top) === LevelCollisions.tileTypes.SOLID) {
+      if (entity.vy > 0 && levelCollisions.getTypeFromPixels(currBox.left, nextBox.bottom) === LevelCollisions.tileTypes.SOLID ||
+          entity.vy > 0 && levelCollisions.getTypeFromPixels(currBox.right, nextBox.bottom) === LevelCollisions.tileTypes.SOLID ||
+          entity.vy < 0 && levelCollisions.getTypeFromPixels(currBox.left, nextBox.top) === LevelCollisions.tileTypes.SOLID ||
+          entity.vy < 0 && levelCollisions.getTypeFromPixels(currBox.right, nextBox.top) === LevelCollisions.tileTypes.SOLID) {
         callback(entity, 'y');
       } else {
         entity.y = nextY;

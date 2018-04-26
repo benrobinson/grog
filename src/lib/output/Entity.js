@@ -23,6 +23,30 @@ export default class Entity {
     return this;
   }
 
+  accX(dt) {
+    this.vx += this.acc * dt;
+    if (this.vx >= this.speed) this.vx = this.speed;
+    return this;
+  }
+
+  decX(dt) {
+    this.vx -= this.acc * dt;
+    if (this.vx <= -this.speed) this.vx = -this.speed;
+    return this;
+  }
+
+  accY(dt) {
+    this.vy += this.acc * dt;
+    if (this.vy >= this.speed) this.vy = this.speed;
+    return this;
+  }
+
+  decY(dt) {
+    this.vy -= this.acc * dt;
+    if (this.vy <= -this.speed) this.vy = -this.speed;
+    return this;
+  }
+
   setAcc(acc) {
     this.acc = acc;
     return this;

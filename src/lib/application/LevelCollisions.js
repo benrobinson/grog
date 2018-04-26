@@ -66,4 +66,47 @@ export default class LevelCollisions {
     return this.getSurrounding(coords.x, coords.y);
   }
 
+  getNextPath(sx, sy, dx, dy) {
+    const source = this.getCoordsFromPixels(sx, sy);
+    const destination = this.getCoordsFromPixels(dx, dy);
+    const surrounding = this.getSurrounding(source.x, source.y);
+
+    let x = 'NONE';
+    let y = 'NONE';
+
+    if (dx > sx) {
+      if (surrounding.right !== LevelCollisions.tileTypes.SOLID ||
+          surrounding.topRight !== LevelCollisions.tileTypes.SOLID ||
+          surrounding.bottomRight !== LevelCollisions.tileTypes.SOLID ||
+          source.x === destination.x) {
+        x = 'INC';
+      }
+    } else if (dx < sx) {
+      if (surrounding.left !== LevelCollisions.tileTypes.SOLID ||
+          surrounding.topLeft !== LevelCollisions.tileTypes.SOLID ||
+          surrounding.bottomLeft !== LevelCollisions.tileTypes.SOLID ||
+          source.x === destination.x) {
+        x = 'DEC';
+      }
+    }
+
+    if (dy > sy) {
+      if (surrounding.bottom !== LevelCollisions.tileTypes.SOLID ||
+          surrounding.bottomRight !== LevelCollisions.tileTypes.SOLID ||
+          surrounding.bottomLeft !== LevelCollisions.tileTypes.SOLID ||
+          source.y === destination.y) {
+        y = 'INC';
+      }
+    } else if (dy < sy) {
+      if (surrounding.top !== LevelCollisions.tileTypes.SOLID ||
+          surrounding.topRight !== LevelCollisions.tileTypes.SOLID ||
+          surrounding.topLeft !== LevelCollisions.tileTypes.SOLID ||
+          source.y === destination.y) {
+        y = 'DEC';
+      }
+    }
+
+    return { x, y };
+  }
+
 }

@@ -17,6 +17,7 @@ import Sprite from './lib/output/Sprite';
 import SpriteGroup from './lib/output/SpriteGroup';
 import {Radians} from './lib/util/Math';
 import LevelCollisions from './lib/application/LevelCollisions';
+import Events from './lib/application/Events';
 
 window.addEventListener('load', function() {
   new ImageAssetLoader()
@@ -58,7 +59,7 @@ function setupApplication(imageAssetManager) {
 
   application.changeStage(stage);
 
-  function addPom(app, x, y) {
+  function addPom(app, x, y, player) {
     const pomAsset = imageAssetManager.getAsset('pom');
     const pomTS = TileSheet(pomAsset, 8, 8);
 
@@ -88,6 +89,31 @@ function setupApplication(imageAssetManager) {
       .setSpriteGroup(pomSpriteGroup);
 
     app.entities.addEntity(pom, app.level.drawingLayers.getLayer('entities'));
+
+    app.events.subscribe(Events.common.APPLICATION_UPDATES, (dt) => {
+      const pomMove = app.level.collisions.getNextPath(pom.x, pom.y, player.x, player.y);
+      switch(pomMove.x) {
+        case 'INC':
+          pom.accX(dt);
+          break;
+        case 'DEC':
+          pom.decX(dt);
+          break;
+        default:
+          break;
+      }
+
+      switch(pomMove.y) {
+        case 'INC':
+          pom.accY(dt);
+          break;
+        case 'DEC':
+          pom.decY(dt);
+          break;
+        default:
+          break;
+      }
+    });
 
     return pom;
   }
@@ -261,7 +287,7 @@ function setupApplication(imageAssetManager) {
     app.entities.addEntity(chicken, app.level.drawingLayers.getLayer('entities'));
 
     // TODO move this into a utility
-    app.events.subscribe('entities:entity-collision', es => {
+    app.events.subscribe(Events.common.ENTITY_ENTITY_COLLISION, es => {
       const newVX = (Math.abs(es.entityA.vx) + Math.abs(es.entityB.vx)) / 2;
       const newVY = (Math.abs(es.entityA.vy) + Math.abs(es.entityB.vy)) / 2;
 
@@ -283,7 +309,33 @@ function setupApplication(imageAssetManager) {
 
     collisionFunctions(app);
 
-    app.events.subscribe('application:input', (dt) => {
+    // Make the chicken follow the player
+    app.events.subscribe(Events.common.APPLICATION_UPDATES, (dt) => {
+      const chickenMove = app.level.collisions.getNextPath(chicken.x, chicken.y, entity.x, entity.y);
+      switch(chickenMove.x) {
+        case 'INC':
+          chicken.accX(dt);
+          break;
+        case 'DEC':
+          chicken.decX(dt);
+          break;
+        default:
+          break;
+      }
+
+      switch(chickenMove.y) {
+        case 'INC':
+          chicken.accY(dt);
+          break;
+        case 'DEC':
+          chicken.decY(dt);
+          break;
+        default:
+          break;
+      }
+    });
+
+    app.events.subscribe(Events.common.APPLICATION_INPUT, (dt) => {
       if (Key.isDown(Key.LEFT)) {
         spriteGroup.sprites.head.isFlipped = true;
         entity.vx -= entity.acc * dt;
@@ -322,9 +374,9 @@ function setupApplication(imageAssetManager) {
       app.camera.refocus();
     });
 
-    const pom1 = addPom(app, 40, 20);
-    const pom2 = addPom(app, 50, 30);
-    const pom3 = addPom(app, 30, 30);
+    const pom1 = addPom(app, 40, 20, entity);
+    const pom2 = addPom(app, 50, 30, entity);
+    const pom3 = addPom(app, 30, 30, entity);
 
     app.camera.canvas.style.width = '320px';
 
@@ -384,6 +436,6 @@ function collisionFunctions(app) {
     bounce(data.entity, data.dimension);
   }
 
-  app.events.subscribe('entities:level-collision', handleLevelCollision);
-  app.events.subscribe('entities:movement', applyFriction);
+  app.events.subscribe(Events.common.ENTITY_LEVEL_COLLISION, handleLevelCollision);
+  app.events.subscribe(Events.common.ENTITY_MOVEMENT, applyFriction);
 }

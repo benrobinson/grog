@@ -1,6 +1,6 @@
 import application from './lib/application';
-import ImageAsset from './lib/output/ImageAsset';
-import ImageAssetLoader from './lib/output/ImageAssetLoader';
+import ImageAsset from './lib/asset-management/ImageAsset';
+import ImageAssetLoader from './lib/asset-management/ImageAssetLoader';
 
 import characterSheetImage from './assets/character.png';
 import tileSheetImage from './assets/tileset.png';
@@ -9,7 +9,7 @@ import chickenImage from './assets/chicken.png';
 import pomImage from './assets/pom.png';
 
 import LevelDrawing from './lib/level/LevelDrawing';
-import TileSheet from './lib/output/TileSheetAsset';
+import TileSheet from './lib/asset-management/TileSheetAsset';
 import Key from './lib/input/Key';
 import Entity from './lib/entities/Entity';
 import Animation from './lib/entities/Animation';

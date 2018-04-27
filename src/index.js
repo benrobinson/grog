@@ -8,16 +8,16 @@ import overlayImage from './assets/overset.png';
 import chickenImage from './assets/chicken.png';
 import pomImage from './assets/pom.png';
 
-import LevelDrawing from './lib/output/LevelDrawing';
+import LevelDrawing from './lib/level/LevelDrawing';
 import TileSheet from './lib/output/TileSheetAsset';
 import Key from './lib/input/Key';
-import Entity from './lib/output/Entity';
-import Animation from './lib/output/Animation';
-import Sprite from './lib/output/Sprite';
-import SpriteGroup from './lib/output/SpriteGroup';
-import {Radians} from './lib/util/Math';
-import LevelCollisions from './lib/application/LevelCollisions';
-import Events from './lib/application/Events';
+import Entity from './lib/entities/Entity';
+import Animation from './lib/entities/Animation';
+import Sprite from './lib/entities/Sprite';
+import SpriteGroup from './lib/entities/SpriteGroup';
+import * as Degrees from './lib/util/Degrees';
+import LevelCollisions from './lib/level/LevelCollisions';
+import Events from './lib/events/Events';
 
 window.addEventListener('load', function() {
   new ImageAssetLoader()
@@ -362,9 +362,10 @@ function setupApplication(imageAssetManager) {
         spriteGroup.sprites.feet.playAnimation('walk');
       }
 
-      const maybeRadians = ((entity.vx * dt) / (entity.vy * dt));
-      const radians = Math.abs(maybeRadians) === Infinity ? 1.57 : maybeRadians;
-      const rotation = Radians.toDegrees(-radians);
+      // const maybeRadians = ((entity.vx * dt) / (entity.vy * dt));
+      // const radians = Math.abs(maybeRadians) === Infinity ? 1.57 : maybeRadians;
+      // const rotation = Degrees.fromRadians(-radians);
+      const rotation = Degrees.fromVelocity(entity.vx, entity.vy);
       spriteGroup.sprites.feet.setRotation(rotation);
 
       spriteGroup.setPosition(entity.x, entity.y);

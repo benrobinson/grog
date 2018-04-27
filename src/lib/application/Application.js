@@ -1,7 +1,7 @@
-import Events from './Events';
-import EventEntityMovement from './EventEntityMovement';
-import EventEntityLevelCollision from './EventEntityLevelCollision';
-import EventEntityEntityCollision from './EventEntityEntityCollision';
+import Events from '../events/Events';
+import EventEntityMovement from '../events/EventEntityMovement';
+import EventEntityLevelCollision from '../events/EventEntityLevelCollision';
+import EventEntityEntityCollision from '../events/EventEntityEntityCollision';
 
 export default class Application {
 

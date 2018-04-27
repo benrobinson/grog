@@ -1,4 +1,4 @@
-import LevelCollisions from './LevelCollisions';
+import LevelCollisions from '../level/LevelCollisions';
 
 export default class Entities {
 

@@ -1,8 +1,8 @@
 import Application from './Application';
 import Camera from './Camera';
-import Entities from './Entities';
-import Events from './Events';
-import Level from './Level';
+import Entities from '../entities/Entities';
+import Events from '../events/Events';
+import Level from '../level/Level';
 import Ticker from './Ticker';
 
 export default new Application(

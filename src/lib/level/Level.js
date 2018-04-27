@@ -1,6 +1,6 @@
 import LevelTriggers from './LevelTriggers';
 import LevelCollisions from './LevelCollisions';
-import DrawingLayers from './DrawingLayers';
+import DrawingLayers from '../application/DrawingLayers';
 
 export default class Level {
 

@@ -1,5 +1,5 @@
-import {Degrees} from '../util/Math';
-import Events from '../application/Events';
+import * as Degrees from '../util/Degrees';
+import Events from '../events/Events';
 
 export default class Animation {
   

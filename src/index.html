@@ -6,7 +6,23 @@
   <body>
     <div class="Game--canvas" id="camera"></div>
     <div class="Game--scripts">
-      <script src="./index.js"></script>
+      <script src="index.js"></script>
+      <style>
+        body {
+          margin: 0;
+          padding: 0;
+        }
+
+        .Game--canvas {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .Game--canvas canvas {
+          height: 100vh;
+        }
+      </style>
     </div>
   </body>
 </html>

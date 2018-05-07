@@ -1,43 +1,13 @@
-import Events from '../../../engine/Events';
-import EffectFadeDrawing from '../../../engine/EffectFadeDrawing';
+import drawBackground from '../../../shared/lib/drawBackground';
+import fadeIn from '../../../shared/lib/fadeIn';
 
 export default function Character(engine) {
 
   engine
-    .setLevelDimensions(64, 48)
-    .withDefaultCameraDimensions()
+    .withDefaultDimensions()
     .withDefaultDrawingLayers();
 
-  _fadeIn(engine);
-  _drawBackground(engine)
+  fadeIn(engine);
+  drawBackground(engine, '#66afff');
 
-}
-
-function _drawBackground(engine) {
-  console.log('drawing the background')
-
-  engine.stage.drawingLayers
-    .getLayer('floor')
-    .addDrawable({
-      draw: (canvasContext) => {
-        canvasContext.fillStyle = '#ffafaf';
-        canvasContext.fillRect(0, 0, engine.stage.canvas.width, engine.stage.canvas.height);
-      }
-    });
-}
-
-function _fadeIn(engine) {
-  const fader = new EffectFadeDrawing()
-    .setArea(engine.camera.canvas.width, engine.camera.canvas.height)
-    .setColor(0, 0, 0)
-    .setDuration(5)
-    .setDirection(EffectFadeDrawing.directions.IN)
-    .onComplete(() => engine.events.publish(Events.common.STAGE_STARTED));
-
-  engine.camera.drawingLayers
-    .getLayer('effects')
-    .addDrawable(fader);
-
-  engine.events
-    .subscribe(Events.common.ENGINE_ANIMATION, dt => fader.tick(dt));
 }

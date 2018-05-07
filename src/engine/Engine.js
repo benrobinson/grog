@@ -20,6 +20,7 @@ export default class Engine {
     this.events = events;
     this.stage = stage;
     this.ticker = ticker;
+    this._backgroundColor = 'black';
     this.empty();
   }
 
@@ -185,7 +186,7 @@ export default class Engine {
    * @returns {Engine}
    */
   withDefaultCameraDimensions() {
-    this.setCameraDimensions(64, 48);
+    this.setCameraDimensions(128, 96);
     return this;
   }
 
@@ -199,8 +200,20 @@ export default class Engine {
     return this;
   }
 
+  withDefaultDimensions() {
+    this.withDefaultCameraDimensions();
+    this.withDefaultLevelDimensions();
+    return this;
+  }
+
+  withBackgroundColor(color) {
+    this._backgroundColor = color;
+    return this;
+  }
+
   mountInto(Id) {
     const mount = window.document.getElementById(Id);
+    mount.style.backgroundColor = this._backgroundColor;
     mount.appendChild(this.camera.canvas);
     return this;
   }

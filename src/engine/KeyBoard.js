@@ -1,11 +1,17 @@
 // Based on: http://nokarma.org/2011/02/27/javascript-game-development-keyboard-input/index.html
 export default class KeyBoard {
 
+  static events = {
+    KEYDOWN: 'KEYDOWN',
+    KEYUP: 'KEYUP'
+  };
+
   static keys = {
     LEFT: 37,
     UP: 38,
     RIGHT: 39,
     DOWN: 40,
+    ENTER: 13
   };
 
   constructor() {
@@ -29,10 +35,10 @@ export default class KeyBoard {
   }
 
   withDefaultListeners(events) {
-    events.subscribe('keydown', event => this.onDown(event));
-    events.subscribe('keyup', event => this.onUp(event));
-    window.addEventListener('keyup', event => events.publish('keyup', event), false);
-    window.addEventListener('keydown', event => events.publish('keydown', event), false);
+    events.subscribe(KeyBoard.events.KEYDOWN, (event) => this.onDown(event));
+    events.subscribe(KeyBoard.events.KEYUP, (event) => this.onUp(event));
+    window.addEventListener('keyup', (event) => events.publish(KeyBoard.events.KEYUP, event), false);
+    window.addEventListener('keydown', (event) => events.publish(KeyBoard.events.KEYDOWN, event), false);
     return this;
   }
 }

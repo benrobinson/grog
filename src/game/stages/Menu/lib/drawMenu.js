@@ -3,6 +3,9 @@ import Events from '../../../../engine/Events';
 import drawText from '../../../../shared/lib/drawText';
 import makeSelector from './makeSelector';
 
+import Options from '../../Options';
+import Character from '../../Character';
+
 export default function drawMenu(engine) {
 
   const menuItems = [
@@ -12,7 +15,7 @@ export default function drawMenu(engine) {
 
   // TODO replace with loading function for saved game state.
   // if (!!window.data === true) {
-  menuItems.unshift("continue");
+  //   menuItems.unshift("continue");
   // }
 
   const menuWidth = 72;
@@ -53,6 +56,7 @@ export default function drawMenu(engine) {
   engine.camera.drawingLayers.getLayer('interface').addDrawable(selector);
 
   let selected = 0;
+
   engine.events.subscribe(KeyBoard.events.KEYUP, (event) => {
     if (event.keyCode === KeyBoard.keys.DOWN) {
       if ((selected + 1) > (menuItems.length - 1)) {
@@ -69,7 +73,19 @@ export default function drawMenu(engine) {
         selected -= 1;
       }
     }
+
+    if (event.keyCode === KeyBoard.keys.ENTER) {
+      switch(menuItems[selected]) {
+        case 'options':
+          engine.changeStage(Options);
+          break;
+        case 'new game':
+          engine.changeStage(Character);
+          break;
+      }
+    }
   });
+
   new KeyBoard().withDefaultListeners(engine.events);
 
   engine.events.subscribe(Events.common.ENGINE_UPDATES, (dt) => {

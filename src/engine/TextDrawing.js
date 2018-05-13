@@ -13,6 +13,11 @@ export default class TextDrawing {
     };
     this._tileSheet = null;
     this._text = "";
+    this._color = {
+      r: 255,
+      g: 255,
+      b: 255
+    };
   }
 
   _drawLetter(canvasContext, letter, x, y) {
@@ -29,6 +34,20 @@ export default class TextDrawing {
         y,
         this._tileSheet.tileWidth,
         this._tileSheet.tileHeight);
+
+      let imageData = canvasContext.getImageData(
+        x, y, this._tileSheet.tileWidth,this._tileSheet.tileHeight);
+      let i;
+      for (i = 0; i < imageData.data.length - 2; i += 4) {
+        if (imageData.data[i] > 253 &&
+            imageData.data[i + 1] > 253 &&
+            imageData.data[i + 2] > 253) {
+          imageData.data[i] = this._color.r;
+          imageData.data[i + 1] = this._color.g;
+          imageData.data[i + 2] = this._color.b;
+        }
+      }
+      canvasContext.putImageData(imageData, x, y);
     }
   }
 
@@ -89,6 +108,11 @@ export default class TextDrawing {
       this._drawLetter(canvasContext, letter, x, y);
       x += this._tileSheet.tileWidth + this._letterSpacing;
     })
+  }
+
+  setColor(r, g, b) {
+    this._color = { r, g, b };
+    return this;
   }
 
   setPosition(x, y) {

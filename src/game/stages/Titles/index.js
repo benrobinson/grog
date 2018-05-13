@@ -16,7 +16,7 @@ export default function Titles(engine) {
     .withDefaultDrawingLayers();
 
   fadeIn(engine);
-  drawBackground(engine, '#ffcbdd');
+  drawBackground(engine, '#FFE991');
   drawTitle(engine);
 
   engine.events
@@ -26,7 +26,7 @@ export default function Titles(engine) {
     })
     .subscribe(Events.common.STAGE_STARTED, () => {
       window.addEventListener('keyup', goToMenu);
-      drawText(engine, "press enter", 32, 80);
+      drawText(engine, "press enter", 32, 86, {r: 0, g: 0, b: 0});
     });
 
   function goToMenu() {

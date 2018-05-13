@@ -13,7 +13,7 @@ export default function Menu(engine) {
     .withDefaultDrawingLayers();
 
   fadeIn(engine);
-  drawBackground(engine, '#afdfff');
+  drawBackground(engine, '#C5E9F1');
   drawMenu(engine);
 
   engine.events

@@ -5,7 +5,7 @@ import ImageAssetLoader from '../../engine/ImageAssetLoader';
 
 import font from '../assets/font-white.png';
 
-export default function drawText(engine, text, x, y) {
+export default function drawText(engine, text, x, y, color = {r: 255, g: 255, b: 255}) {
 
   new ImageAssetLoader()
     .addAsset(new ImageAsset()
@@ -24,6 +24,7 @@ export default function drawText(engine, text, x, y) {
       .setTileSheet(fontTileSheet)
       .setLetterSpacing(1)
       .setPosition(x, y)
+      .setColor(color.r, color.g, color.b)
       .setText(text);
 
     engine.camera.drawingLayers.getLayer('interface').addDrawable(t);

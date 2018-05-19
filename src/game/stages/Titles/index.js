@@ -1,6 +1,5 @@
 import Events from '../../../engine/Events';
 
-import drawBackground from '../../../shared/lib/drawBackground';
 import drawText from '../../../shared/lib/drawText';
 import fadeIn from '../../../shared/lib/fadeIn';
 import fadeOut from '../../../shared/lib/fadeOut';
@@ -8,6 +7,13 @@ import fadeOut from '../../../shared/lib/fadeOut';
 import drawTitle from './lib/drawTitle';
 
 import Menu from '../Menu';
+import Sprite from '../../../engine/Sprite';
+import Animation from '../../../engine/Animation';
+import ImageAsset from '../../../engine/ImageAsset';
+import ImageAssetLoader from '../../../engine/ImageAssetLoader';
+import TileSheet from '../../../engine/TileSheetAsset';
+
+import titleBackground from '../../../shared/assets/titles-background.png';
 
 export default function Titles(engine) {
 
@@ -16,7 +22,7 @@ export default function Titles(engine) {
     .withDefaultDrawingLayers();
 
   fadeIn(engine);
-  drawBackground(engine, '#FFE991');
+  _drawTitleBackground(engine);
   drawTitle(engine);
 
   engine.events
@@ -26,10 +32,35 @@ export default function Titles(engine) {
     })
     .subscribe(Events.common.STAGE_STARTED, () => {
       window.addEventListener('keyup', goToMenu);
-      drawText(engine, "press enter", 32, 86, {r: 0, g: 0, b: 0});
+      drawText(engine, "press enter", 32, 86);
     });
 
   function goToMenu() {
     engine.changeStage(Menu)
   }
+}
+
+function _drawTitleBackground(engine) {
+
+  new ImageAssetLoader()
+    .addAsset(new ImageAsset()
+      .setName('title')
+      .setWidth(128)
+      .setHeight(96)
+      .setSource(titleBackground)
+      .buildResource())
+    .onSuccess(doDraw)
+    .load();
+
+  function doDraw(tileSheetManager) {
+    const titleBackgroundTileSheet = TileSheet(tileSheetManager.getAsset('title'), 128, 96);
+
+    engine.stage.drawingLayers.getLayer('floor').addDrawable(
+      new Sprite()
+        .setPosition(64, 48)
+        .addAnimation('background', new Animation(engine, titleBackgroundTileSheet)
+          .addFrame(0, 0))
+        .playAnimation('background'));
+  }
+
 }

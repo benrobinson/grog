@@ -1,4 +1,4 @@
-import * as Degrees from './util/Degrees';
+import * as Degrees from '../util/Degrees';
 
 export default class Sprite {
   constructor() {
